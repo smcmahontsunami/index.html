@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Car Wash Equipment Glossary</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f5f3;
+    color: #1a1a18;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .header-eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #185FA5;
+    margin-bottom: 6px;
+  }
+
+  .header-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a18;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .header-sub {
+    font-size: 15px;
+    color: #5f5e5a;
+    max-width: 560px;
+    line-height: 1.6;
+  }
+
+  .header-divider {
+    margin-top: 1.25rem;
+    border: none;
+    border-top: 1.5px solid #d3d1c7;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 1.5rem 0;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 360px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 9px 14px 9px 36px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid #d3d1c7;
+    border-radius: 8px;
+    background: #fff;
+    color: #1a1a18;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-wrap input:focus { border-color: #378ADD; }
+
+  .search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .tab-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tab {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid #d3d1c7;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    color: #5f5e5a;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { border-color: #b4b2a9; }
+  .tab.active-all { background: #f1efe8; color: #1a1a18; border-color: #b4b2a9; }
+  .tab.active-tunnel { background: #E6F1FB; color: #185FA5; border-color: #85B7EB; }
+  .tab.active-backroom { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+
+  .count-badge {
+    margin-left: auto;
+    font-size: 12px;
+    color: #888780;
+    font-family: 'DM Sans', sans-serif;
+    align-self: center;
+  }
+
+  /* Section headers */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 2rem 0 1rem;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d3d1c7;
+  }
+
+  .section-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .tunnel-badge { background: #B5D4F4; color: #0C447C; }
+  .backroom-badge { background: #9FE1CB; color: #085041; }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a18;
+  }
+
+  .section-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: #888780;
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  /* Cards */
+  .card {
+    background: #fff;
+    border: 1px solid #e8e6df;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+
+  .card:hover {
+    border-color: #b4b2a9;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  }
+
+  .card-img-wrap {
+    width: 100%;
+    height: 160px;
+    background: #f1efe8;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: #888780;
+    font-size: 12px;
+  }
+
+  .img-placeholder svg {
+    width: 28px;
+    height: 28px;
+    opacity: 0.3;
+  }
+
+  .card-body {
+    padding: 13px 15px 15px;
+  }
+
+  .card-term {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a18;
+    margin-bottom: 5px;
+    line-height: 1.3;
+  }
+
+  .card-def {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #5f5e5a;
+  }
+
+  .no-results {
+    grid-column: 1 / -1;
+    padding: 3rem;
+    text-align: center;
+    color: #888780;
+    font-size: 14px;
+  }
+
+  /* Footer */
+  .page-footer {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #d3d1c7;
+    font-size: 12px;
+    color: #888780;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .header-title { font-size: 24px; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .search-wrap { max-width: 100%; }
+    .count-badge { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="header-eyebrow">Maintenance Reference</div>
+    <h1 class="header-title">Car Wash Equipment Glossary</h1>
+    <p class="header-sub">A complete reference guide to tunnel and backroom equipment for site teams. Search any term or filter by section.</p>
+    <hr class="header-divider" />
+  </div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6.5" cy="6.5" r="5" stroke="#1a1a18" stroke-width="1.5"/>
+        <path d="M10 10L14 14" stroke="#1a1a18" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="text" id="search" placeholder="Search equipment terms..." oninput="filterCards()" />
+    </div>
+    <div class="tab-row">
+      <button class="tab active-all" id="tab-all" onclick="setTab('all')">All equipment</button>
+      <button class="tab" id="tab-tunnel" onclick="setTab('tunnel')">Tunnel</button>
+      <button class="tab" id="tab-backroom" onclick="setTab('backroom')">Backroom</button>
+    </div>
+    <span class="count-badge" id="count-label"></span>
+  </div>
+
+  <div id="glossary-root"></div>
+
+  <div class="page-footer">
+    <span>Car Wash Equipment Glossary &mdash; Maintenance Reference</span>
+    <span id="footer-date"></span>
+  </div>
+
+</div>
+
+<script>
+const terms = {
+  tunnel: [
+    { term: "Conveyor / Chain Drive", def: "The underground chain system that pulls vehicles through the tunnel at a set speed (feet per minute). Line speed is controlled here and directly affects wash quality and throughput.", query: "car wash conveyor chain drive system underground" },
+    { term: "Correlator / Tire Guide", def: "The track or roller system at the tunnel entrance that aligns vehicle tires onto the conveyor chain. Prevents vehicles from going off-track during the wash.", query: "car wash tire guide correlator entrance alignment" },
+    { term: "Wrap-Around Brush", def: "Large rotating cylindrical brushes that wrap around the front, sides, and rear of the vehicle to scrub body panels. Usually cloth or foam material.", query: "car wash wrap around rotating brush cylindrical" },
+    { term: "Mitter Curtain", def: "Hanging cloth strips suspended from a horizontal axis that gently wipe the hood and roof of the vehicle as it passes underneath.", query: "car wash mitter curtain cloth strips overhead" },
+    { term: "Rocker Panel Brush", def: "Low-mounted rotating brushes that target the rocker panels and lower door areas — a zone often missed by side brushes.", query: "car wash rocker panel low brush side" },
+    { term: "Wheel Blaster / Tire Applicator", def: "High-pressure nozzles or rotating brush heads positioned to clean wheel faces and tires. Often applies dedicated wheel chemical.", query: "car wash wheel blaster tire cleaning nozzle high pressure" },
+    { term: "High-Pressure Arch", def: "An overhead or side arch with multiple high-pressure nozzles that blasts water to pre-soak, rinse, or remove debris from the vehicle surface.", query: "car wash high pressure arch nozzles spray" },
+    { term: "Foam Applicator / Foam Bath", def: "An arch or side-mounted manifold that applies thick foam soap or presoak to the vehicle. Often creates a colorful visual experience for customers.", query: "car wash foam applicator arch soap colorful" },
+    { term: "Triple Foam Arch", def: "A specialty applicator that delivers three-colored conditioning foam onto the vehicle. Primarily cosmetic/marketing but also adds surface lubricant.", query: "car wash triple foam arch colored conditioning" },
+    { term: "Spot-Free Rinse Arch", def: "The final rinse arch that delivers deionized (DI) or reverse osmosis (RO) water to prevent water spots from forming as the vehicle dries.", query: "car wash spot free rinse arch final deionized" },
+    { term: "Air Dryer / Blower", def: "High-velocity air blowers mounted on arches or side units that blow water off the vehicle surface before it exits the tunnel.", query: "car wash air dryer blower tunnel arch" },
+    { term: "Side Blasters", def: "Horizontally-aimed air nozzles positioned along the tunnel sides to dry door handles, mirrors, and body panel gaps.", query: "car wash side air blasters nozzles tunnel" },
+    { term: "Chemical Injection System", def: "Automated dosing system that injects precise amounts of soap, presoak, wax, or other chemicals into the water lines at set dilution ratios.", query: "car wash chemical injection dosing system pump" },
+    { term: "Tire Shine Applicator", def: "Foam or brush applicator near the tunnel exit that applies tire dressing product directly to the tire sidewall.", query: "car wash tire shine applicator dressing" },
+    { term: "License Plate Washer", def: "Targeted low-profile nozzle or brush aimed at the front and/or rear license plate to ensure it is cleaned without being damaged.", query: "car wash license plate brush nozzle washer" },
+    { term: "Load Sensor / Vehicle Detector", def: "Photocell or laser sensors at the tunnel entrance that detect vehicle length and trigger chemical or equipment sequences accordingly.", query: "car wash vehicle detector photocell sensor entrance" },
+    { term: "Presoak Arch", def: "First chemical application arch in the tunnel that applies a low-pH or high-pH solution to loosen road grime before brushing begins.", query: "car wash presoak arch chemical application first" },
+    { term: "Wax / Polish Arch", def: "Mid or post-brush arch that applies liquid wax, sealant, or polish to the vehicle surface to enhance shine and water beading.", query: "car wash wax arch sealant polish applicator" },
+  ],
+  backroom: [
+    { term: "Chemical Proportioner", def: "A wall-mounted metering device that dilutes concentrated chemical products with water to the correct ratio before delivery to tunnel applicators.", query: "car wash chemical proportioner metering wall mounted" },
+    { term: "Booster Pump", def: "High-pressure pump that increases water pressure from the supply line to the levels required by tunnel high-pressure arches and blasters.", query: "car wash booster pump high pressure water" },
+    { term: "Reverse Osmosis (RO) System", def: "A water filtration system that removes dissolved solids through a semi-permeable membrane, producing spot-free rinse water.", query: "reverse osmosis system water filtration car wash" },
+    { term: "Deionization (DI) Tank", def: "Tanks filled with ion-exchange resin that strip remaining minerals from water after RO treatment, ensuring zero TDS for spot-free rinse.", query: "deionization DI tank ion exchange resin water" },
+    { term: "Water Softener", def: "Ion-exchange system that removes calcium and magnesium hardness minerals from the supply water to protect equipment and improve chemical performance.", query: "water softener tank industrial car wash system" },
+    { term: "Reclaim System / Reclaim Tank", def: "Underground or above-ground tanks and filtration equipment that capture, treat, and recycle wash water back into the tunnel for reuse.", query: "car wash water reclaim system recycling tank" },
+    { term: "Sand/Oil Separator", def: "A pre-treatment chamber in the reclaim system that separates heavy solids, sand, and oils from wash water before it enters the reclaim tank.", query: "car wash sand oil separator pit reclaim" },
+    { term: "Clarifier", def: "A tank or vessel in the reclaim system where suspended particles settle or are chemically coagulated out of the water before recirculation.", query: "water clarifier treatment tank car wash" },
+    { term: "Control Panel / PLC", def: "The programmable logic controller and electrical panel that automates all tunnel equipment sequences, chemical dosing, conveyor speed, and safety interlocks.", query: "car wash PLC control panel electrical automation" },
+    { term: "Variable Frequency Drive (VFD)", def: "An electronic controller that adjusts motor speed by varying electrical frequency — used on conveyor drives, pumps, and blowers to optimize energy use.", query: "variable frequency drive VFD motor controller industrial" },
+    { term: "Air Compressor", def: "Supplies compressed air to pneumatic valves, actuators, and air-assist chemical nozzles throughout the tunnel.", query: "industrial air compressor pneumatic car wash" },
+    { term: "Chemical Storage Drums", def: "55-gallon or tote containers that store bulk concentrated chemicals connected to proportioners via tubing and suction lines.", query: "chemical drum storage bulk 55 gallon tote car wash" },
+    { term: "Hydraulic Power Unit (HPU)", def: "Powers hydraulic motors and cylinders used on brush arms, tire guides, and other tunnel equipment requiring heavy mechanical force.", query: "hydraulic power unit HPU industrial motor" },
+    { term: "Sump Pump", def: "Removes accumulated water from the equipment pit or backroom floor drains to prevent flooding and protect electrical components.", query: "sump pump industrial floor drain water removal" },
+    { term: "Hot Water Heater / Boiler", def: "Heats water for specific tunnel applications such as presoak or wheel cleaning where elevated temperature improves chemical performance.", query: "industrial water heater boiler car wash equipment" },
+    { term: "TDS Meter / Conductivity Monitor", def: "Inline sensor that continuously measures total dissolved solids in the spot-free rinse water and alerts staff when DI resin needs replacement.", query: "TDS meter water quality monitor conductivity inline" },
+    { term: "Chemical Metering Pump", def: "A precision peristaltic or diaphragm pump that delivers exact volumes of chemical concentrate into the water stream at programmable intervals.", query: "peristaltic chemical metering pump precision industrial" },
+    { term: "Electrical Disconnect / E-Stop", def: "Safety devices that immediately cut power to all equipment. E-stops are red push buttons at the tunnel entrance, exit, and backroom.", query: "emergency stop button E-stop industrial electrical safety" },
+  ]
+};
+
+let currentTab = 'all';
+let imageCache = {};
+
+function setTab(tab) {
+  currentTab = tab;
+  ['all','tunnel','backroom'].forEach(t => {
+    const btn = document.getElementById('tab-' + t);
+    btn.className = 'tab';
+    if (t === tab) {
+      btn.className = 'tab active-' + tab;
+    }
+  });
+  filterCards();
+}
+
+function filterCards() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const root = document.getElementById('glossary-root');
+  root.innerHTML = '';
+  let totalShown = 0;
+
+  const sections = currentTab === 'all'
+    ? [['tunnel', terms.tunnel], ['backroom', terms.backroom]]
+    : [[currentTab, terms[currentTab]]];
+
+  sections.forEach(([section, items]) => {
+    const filtered = items.filter(item =>
+      !q || item.term.toLowerCase().includes(q) || item.def.toLowerCase().includes(q)
+    );
+    if (!filtered.length) return;
+    totalShown += filtered.length;
+
+    const header = document.createElement('div');
+    header.className = 'section-header';
+    header.innerHTML = `
+      <span class="section-badge ${section}-badge">${section === 'tunnel' ? 'Tunnel' : 'Backroom'}</span>
+      <span class="section-title">${section === 'tunnel' ? 'Tunnel Equipment' : 'Backroom &amp; Mechanical Room'}</span>
+      <span class="section-count">${filtered.length} terms</span>
+    `;
+    root.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+
+    filtered.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'card-img-wrap';
+      imgWrap.id = 'img-' + encodeURIComponent(item.term);
+
+      if (imageCache[item.term]) {
+        const img = document.createElement('img');
+        img.src = imageCache[item.term];
+        img.alt = item.term;
+        imgWrap.appendChild(img);
+      } else {
+        imgWrap.innerHTML = `
+          <div class="img-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="M21 15l-5-5L5 21"/>
+            </svg>
+            <span>Loading image&hellip;</span>
+          </div>`;
+        loadImage(item, imgWrap);
+      }
+
+      const body = document.createElement('div');
+      body.className = 'card-body';
+      body.innerHTML = `<div class="card-term">${item.term}</div><div class="card-def">${item.def}</div>`;
+
+      card.appendChild(imgWrap);
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+
+    root.appendChild(grid);
+  });
+
+  if (!totalShown) {
+    root.innerHTML = `<div class="no-results">No terms match &ldquo;${q}&rdquo;</div>`;
+  }
+
+  document.getElementById('count-label').textContent = totalShown + ' terms shown';
+}
+
+async function loadImage(item, container) {
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{
+          role: 'user',
+          content: `Search for a real photograph of this car wash equipment: "${item.query}". Return ONLY a single direct image URL ending in .jpg, .jpeg, .png, or .webp — nothing else.`
+        }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content || []).map(b => b.text || '').join('');
+    const match = text.match(/https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp)(\?[^\s"'<>]*)?/i);
+    if (match) {
+      imageCache[item.term] = match[0];
+      const img = document.createElement('img');
+      img.src = match[0];
+      img.alt = item.term;
+      img.onerror = () => {
+        container.innerHTML = `<div class="img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Image unavailable</span></div>`;
+      };
+      container.innerHTML = '';
+      container.appendChild(img);
+    } else {
+      container.innerHTML = `<div class="img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>No image found</span></div>`;
+    }
+  } catch(e) {
+    container.innerHTML = `<div class="img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Image unavailable</span></div>`;
+  }
+}
+
+document.getElementById('footer-date').textContent = 'Last updated: ' + new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+filterCards();
+</script>
+</body>
+</html>

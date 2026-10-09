@@ -1,0 +1,4 @@
+# MaintainX credentials and pulled data — never commit
+.env
+*.key
+mx_data/

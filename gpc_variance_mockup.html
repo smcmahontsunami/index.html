@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GPC Variance Overlay</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #121212;
+    --surface: #1a1a19;
+    --border: #2e2e2c;
+    --grid: #2a2a28;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #8b8a83;
+    --actual: #3987e5;
+    --target: #c3c2b7;
+    --over: #d95926;
+    --under: #199e70;
+    --accent: #3987e5;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+      --bg: #f5f5f3;
+      --surface: #fcfcfb;
+      --border: #dddcd6;
+      --grid: #e8e7e2;
+      --text-primary: #0b0b0b;
+      --text-secondary: #52514e;
+      --text-muted: #77766f;
+      --actual: #2a78d6;
+      --target: #52514e;
+      --over: #eb6834;
+      --under: #1baf7a;
+      --accent: #2a78d6;
+    }
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f5f5f3; --surface: #fcfcfb; --border: #dddcd6; --grid: #e8e7e2;
+    --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #77766f;
+    --actual: #2a78d6; --target: #52514e; --over: #eb6834; --under: #1baf7a; --accent: #2a78d6;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #121212; --surface: #1a1a19; --border: #2e2e2c; --grid: #2a2a28;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8b8a83;
+    --actual: #3987e5; --target: #c3c2b7; --over: #d95926; --under: #199e70; --accent: #3987e5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 16px;
+  }
+  .wrap { max-width: 1400px; margin: 0 auto; }
+  .meta { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+  .banner {
+    border: 1px dashed var(--border); border-radius: 6px; padding: 8px 12px;
+    font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;
+  }
+  .banner b { color: var(--text-primary); }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; margin-bottom: 18px; }
+  .control label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  .control input[type=number] {
+    width: 110px; padding: 7px 10px; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-primary); font: inherit;
+  }
+  .control input[type=range] { width: 200px; accent-color: var(--accent); }
+  .static { font-weight: 600; padding: 7px 0; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .kpi { padding: 4px 0; }
+  .kpi .lbl { font-size: 12px; color: var(--text-secondary); }
+  .kpi .val { font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .kpi .sub { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .kpi.new { border-left: 3px solid var(--accent); padding-left: 10px; }
+  .tag { display: inline-block; font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+         color: var(--accent); margin-left: 6px; }
+  .flag-over::before { content: "▲ "; color: var(--over); }
+  .flag-under::before { content: "▼ "; color: var(--under); }
+
+  h2 { font-size: 19px; font-weight: 500; margin: 6px 0 4px; }
+  .desc { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 18px; height: 0; border-top: 2px solid; }
+  .sw.dash { border-top-style: dashed; }
+  .box { width: 12px; height: 12px; border-radius: 2px; }
+
+  .chart { position: relative; width: 100%; margin-bottom: 28px; }
+  .chart svg { display: block; width: 100%; overflow: visible; }
+  .chart text { fill: var(--text-secondary); font-size: 11px; }
+
+  .tip {
+    position: absolute; pointer-events: none; display: none; z-index: 5;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-size: 12px; min-width: 200px; box-shadow: 0 4px 14px rgba(0,0,0,.35);
+  }
+  .tip .h { font-weight: 600; margin-bottom: 4px; }
+  .tip .r { display: flex; justify-content: space-between; gap: 16px; color: var(--text-secondary); }
+  .tip .r b { color: var(--text-primary); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  details { margin-bottom: 24px; }
+  summary { cursor: pointer; color: var(--text-secondary); font-size: 13px; margin-bottom: 8px; }
+  .tbl-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--text-secondary); font-weight: 500; }
+  tfoot td { font-weight: 600; }
+
+  .logic { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .logic code { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: var(--text-primary); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="meta">Tsunami Express · 142 – St Joseph-Cleveland · Oct 08, 2026 · 12 AM – 12 AM (ET) · Usage tab — proposed overlay</div>
+
+  <div class="banner">
+    <b>Mockup.</b> Hourly gallons are read from the dashboard chart; daily totals match exactly (23,063 gal · 490 cars · 84 closed-hours gal).
+    <b>Hourly car counts are illustrative</b> (sum to 490) — the live version pulls them from the same tunnel-count source as <i>Total cars</i>.
+  </div>
+
+  <div class="controls">
+    <div class="control">
+      <label for="tgt">Target gallons per car</label>
+      <input id="tgt" type="number" min="5" max="100" step="0.5" value="30" />
+    </div>
+    <div class="control">
+      <label for="tgtRange">&nbsp;</label>
+      <input id="tgtRange" type="range" min="15" max="60" step="0.5" value="30" />
+    </div>
+    <div class="control">
+      <label for="rate">Water + sewer $ per 1,000 gal (optional)</label>
+      <input id="rate" type="number" min="0" step="0.25" placeholder="e.g. 12.00" />
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <h2>Water usage by hour (gallons) — actual vs. target</h2>
+  <div class="desc">Target line = cars washed that hour × target GPC. Shaded gap is the variance: orange = water used above what the car count justifies; green = below.</div>
+  <div class="legend">
+    <span><i class="sw" style="border-color:var(--actual)"></i>Actual gallons</span>
+    <span><i class="sw dash" style="border-color:var(--target)"></i>Target gallons (cars × target)</span>
+    <span><i class="box" style="background:var(--over);opacity:.45"></i>Over target</span>
+    <span><i class="box" style="background:var(--under);opacity:.45"></i>Under target</span>
+  </div>
+  <div class="chart" id="c1"><svg></svg><div class="tip"></div></div>
+
+  <h2>Car-count variance by hour (actual cars − cars the water supports)</h2>
+  <div class="desc">Cars the water supports = gallons ÷ target GPC (e.g. 1,000 gal ÷ 30 = 33 cars). Negative = water used for cars that didn't go through the tunnel.</div>
+  <div class="legend">
+    <span><i class="box" style="background:var(--over)"></i>▼ Short of target (over-using water)</span>
+    <span><i class="box" style="background:var(--under)"></i>▲ Ahead of target</span>
+  </div>
+  <div class="chart" id="c2"><svg></svg><div class="tip"></div></div>
+
+  <details open>
+    <summary>Hourly table</summary>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+  </details>
+
+  <details>
+    <summary>Calculation logic (for Sigma / Snowflake build)</summary>
+    <div class="logic">
+      <p><code>target_gal = cars × target_gpc</code></p>
+      <p><code>gal_variance = gallons − target_gal</code> &nbsp;(+ = over target)</p>
+      <p><code>cars_supported = gallons ÷ target_gpc</code></p>
+      <p><code>car_variance = cars − cars_supported</code> &nbsp;(− = short; equals −gal_variance ÷ target_gpc)</p>
+      <p><code>excess_cost = max(gal_variance, 0) ÷ 1000 × $/kgal</code></p>
+      <p>Closed hours (0 cars) count fully as variance — that water has no car behind it (leaks, RO reject, reclaim top-off, stuck valves). Target GPC should be a site-level parameter so equipment packages can carry different targets.</p>
+    </div>
+  </details>
+</div>
+
+<script>
+// Hourly gallons read from the Oct 08 dashboard chart (sum = 23,063). Cars are illustrative (sum = 490).
+const HOURS = ["12 AM","1 AM","2 AM","3 AM","4 AM","5 AM","6 AM","7 AM","8 AM","9 AM","10 AM","11 AM",
+               "12 PM","1 PM","2 PM","3 PM","4 PM","5 PM","6 PM","7 PM","8 PM","9 PM","10 PM","11 PM"];
+const GAL  = [0,0,0,0,0,0,70,860,1260,1150,2049,1590,2260,2230,2700,1520,2570,1390,2350,940,110,14,0,0];
+const CARS = [0,0,0,0,0,0,0,14,26,25,46,34,50,49,60,30,56,28,52,17,3,0,0,0];
+
+const $ = s => document.querySelector(s);
+const fmt = (n, d = 0) => n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const sgn = (n, d = 0) => (n > 0 ? "+" : n < 0 ? "−" : "") + fmt(Math.abs(n), d);
+const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function niceMax(v, step) { return Math.max(step, Math.ceil(v / step) * step); }
+
+function rows(tgt) {
+  return HOURS.map((h, i) => {
+    const g = GAL[i], c = CARS[i];
+    const tg = c * tgt;
+    return { h, g, c, gpc: c ? g / c : null, tg, gv: g - tg, sup: g / tgt, cv: c - g / tgt, closed: c === 0 && g > 0 };
+  });
+}
+
+function kpis(tgt, rate) {
+  const G = GAL.reduce((a, b) => a + b, 0), C = CARS.reduce((a, b) => a + b, 0);
+  const gpc = G / C, sup = G / tgt, cv = C - sup, gv = G - C * tgt;
+  const closed = rows(tgt).filter(r => r.closed).reduce((a, r) => a + r.g, 0);
+  const cost = rate > 0 ? Math.max(gv, 0) / 1000 * rate : null;
+  const over = gv > 0;
+  $("#kpis").innerHTML = `
+    <div class="kpi"><div class="lbl">Gallons per car — 1 site(s)</div><div class="val">${fmt(gpc, 1)}</div>
+      <div class="sub ${over ? "flag-over" : "flag-under"}">${sgn(gpc - tgt, 1)} vs ${fmt(tgt, 1)} target (${sgn((gpc / tgt - 1) * 100, 0)}%)</div></div>
+    <div class="kpi"><div class="lbl">Total gallons</div><div class="val">${fmt(G)}</div><div class="sub">Target: ${fmt(C * tgt)}</div></div>
+    <div class="kpi"><div class="lbl">Total cars</div><div class="val">${fmt(C)}</div><div class="sub">Closed-hours gallons: ${fmt(closed)}</div></div>
+    <div class="kpi new"><div class="lbl">Cars the water supports<span class="tag">new</span></div><div class="val">${fmt(sup)}</div>
+      <div class="sub">${fmt(G)} ÷ ${fmt(tgt, 1)}</div></div>
+    <div class="kpi new"><div class="lbl">Car variance<span class="tag">new</span></div><div class="val">${sgn(cv)}</div>
+      <div class="sub ${cv < 0 ? "flag-over" : "flag-under"}">${cv < 0 ? "cars short of target" : "cars ahead of target"}</div></div>
+    <div class="kpi new"><div class="lbl">Gallon variance<span class="tag">new</span></div><div class="val">${sgn(gv)}</div>
+      <div class="sub">${sgn(gv / G * 100, 1)}% of usage${cost !== null ? ` · $${fmt(cost, 2)} ${gv > 0 ? "excess" : ""}` : ""}</div></div>`;
+}
+
+const PAD = { l: 52, r: 12, t: 10, b: 30 };
+
+function xAxis(svg, W, H, x, every) {
+  HOURS.forEach((h, i) => {
+    if (i % every) return;
+    el("text", { x: x(i), y: H - 8, "text-anchor": "middle" }, svg).textContent = h;
+  });
+}
+
+function bindHover(chart, svg, W, H, x, bw, html) {
+  const tip = chart.querySelector(".tip");
+  const cross = el("line", { y1: PAD.t, y2: H - PAD.b, stroke: cssVar("--text-muted"), "stroke-width": 1, opacity: 0 }, svg);
+  const hit = el("rect", { x: PAD.l, y: PAD.t, width: W - PAD.l - PAD.r, height: H - PAD.t - PAD.b, fill: "transparent" }, svg);
+  hit.addEventListener("mousemove", ev => {
+    const r = svg.getBoundingClientRect();
+    const mx = ev.clientX - r.left;
+    const i = Math.max(0, Math.min(23, Math.round((mx - PAD.l - bw / 2) / bw)));
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("opacity", .6);
+    tip.innerHTML = html(i);
+    tip.style.display = "block";
+    const tw = tip.offsetWidth;
+    let left = x(i) + 14; if (left + tw > W) left = x(i) - tw - 14;
+    tip.style.left = left + "px"; tip.style.top = (PAD.t + 4) + "px";
+  });
+  hit.addEventListener("mouseleave", () => { tip.style.display = "none"; cross.setAttribute("opacity", 0); });
+}
+
+function tipHtml(r, tgt, rate) {
+  const cost = rate > 0 && r.gv > 0 ? `<div class="r">Excess cost<b>$${fmt(r.gv / 1000 * rate, 2)}</b></div>` : "";
+  return `<div class="h">${r.h}${r.closed ? " · closed" : ""}</div>
+    <div class="r">Actual gallons<b>${fmt(r.g)}</b></div>
+    <div class="r">Target gallons<b>${fmt(r.tg)}</b></div>
+    <div class="r">Gallon variance<b>${sgn(r.gv)}</b></div>
+    <div class="r">Cars<b>${fmt(r.c)}</b></div>
+    <div class="r">Cars water supports<b>${fmt(r.sup, 1)}</b></div>
+    <div class="r">Car variance<b>${sgn(r.cv, 1)}</b></div>
+    <div class="r">GPC (target ${fmt(tgt, 1)})<b>${r.gpc === null ? "—" : fmt(r.gpc, 1)}</b></div>${cost}`;
+}
+
+function drawUsage(R, tgt, rate) {
+  const chart = $("#c1"), svg = chart.querySelector("svg");
+  const W = chart.clientWidth, H = Math.max(260, Math.min(380, W * 0.32));
+  svg.innerHTML = ""; svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const maxV = niceMax(Math.max(...GAL, ...R.map(r => r.tg)) * 1.08, 400);
+  const bw = (W - PAD.l - PAD.r) / 24;
+  const x = i => PAD.l + bw * i + bw / 2;
+  const y = v => PAD.t + (H - PAD.t - PAD.b) * (1 - v / maxV);
+
+  for (let v = 0; v <= maxV; v += maxV / 7 >= 400 ? 400 : 200) {
+    el("line", { x1: PAD.l, x2: W - PAD.r, y1: y(v), y2: y(v), stroke: cssVar("--grid"), "stroke-width": 1 }, svg);
+    el("text", { x: PAD.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v);
+  }
+  xAxis(svg, W, H, x, W < 700 ? 4 : 2);
+
+  // Variance fill per segment, split at crossings so each piece is single-colored.
+  for (let i = 0; i < 23; i++) {
+    const a0 = R[i].g, a1 = R[i + 1].g, t0 = R[i].tg, t1 = R[i + 1].tg;
+    const d0 = a0 - t0, d1 = a1 - t1;
+    const seg = (xs, ya, yb, xe, yc, yd, over) => el("path", {
+      d: `M${xs},${y(ya)} L${xe},${y(yc)} L${xe},${y(yd)} L${xs},${y(yb)} Z`,
+      fill: cssVar(over ? "--over" : "--under"), opacity: .35
+    }, svg);
+    if (d0 === 0 && d1 === 0) continue;
+    if (d0 * d1 >= 0) { seg(x(i), a0, t0, x(i + 1), a1, t1, d0 + d1 > 0); continue; }
+    const f = d0 / (d0 - d1), xm = x(i) + bw * f, vm = a0 + (a1 - a0) * f;
+    seg(x(i), a0, t0, xm, vm, vm, d0 > 0);
+    seg(xm, vm, vm, x(i + 1), a1, t1, d1 > 0);
+  }
+  const line = (vals, color, dash) => el("path", {
+    d: vals.map((v, i) => `${i ? "L" : "M"}${x(i)},${y(v)}`).join(""),
+    fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-dasharray": dash || "none"
+  }, svg);
+  line(R.map(r => r.tg), cssVar("--target"), "6 4");
+  line(GAL, cssVar("--actual"));
+
+  // Direct-label the largest hourly overage.
+  const worst = R.reduce((m, r, i) => (r.gv > R[m].gv ? i : m), 0);
+  if (R[worst].gv > 0) {
+    const t = el("text", { x: x(worst), y: y(R[worst].g) - 8, "text-anchor": "middle" }, svg);
+    t.style.fill = cssVar("--text-primary"); t.style.fontWeight = 600;
+    t.textContent = `${sgn(R[worst].gv)} gal`;
+  }
+  bindHover(chart, svg, W, H, x, bw, i => tipHtml(R[i], tgt, rate));
+}
+
+function drawVariance(R, tgt, rate) {
+  const chart = $("#c2"), svg = chart.querySelector("svg");
+  const W = chart.clientWidth, H = Math.max(200, Math.min(280, W * 0.22));
+  svg.innerHTML = ""; svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  // Asymmetric domain: only give a side room when data lands there.
+  const neg = Math.max(0, ...R.map(r => -r.cv)) * 1.15, pos = Math.max(0, ...R.map(r => r.cv)) * 1.15;
+  const step = [5, 10, 15, 20, 25, 50, 100].find(s => (neg + pos) / s <= 5) || 100;
+  const lo = -Math.max(step, Math.ceil(neg / step) * step), hi = Math.max(step, Math.ceil(pos / step) * step);
+  const bw = (W - PAD.l - PAD.r) / 24;
+  const x = i => PAD.l + bw * i + bw / 2;
+  const y = v => PAD.t + (H - PAD.t - PAD.b) * (hi - v) / (hi - lo);
+  for (let v = lo; v <= hi + 1e-9; v += step) {
+    el("line", { x1: PAD.l, x2: W - PAD.r, y1: y(v), y2: y(v), stroke: cssVar(v === 0 ? "--text-muted" : "--grid"), "stroke-width": 1 }, svg);
+    el("text", { x: PAD.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = sgn(v);
+  }
+  xAxis(svg, W, H, x, W < 700 ? 4 : 2);
+  const barW = Math.max(3, bw - 4);
+  R.forEach((r, i) => {
+    if (Math.abs(r.cv) < 0.05) return;
+    const top = Math.min(y(0), y(r.cv)), h = Math.abs(y(r.cv) - y(0));
+    // Rounded at the data end, square at the zero line.
+    const rad = Math.min(4, h, barW / 2), x0 = x(i) - barW / 2, x1 = x0 + barW;
+    const d = r.cv > 0
+      ? `M${x0},${y(0)} V${top + rad} Q${x0},${top} ${x0 + rad},${top} H${x1 - rad} Q${x1},${top} ${x1},${top + rad} V${y(0)} Z`
+      : `M${x0},${y(0)} V${top + h - rad} Q${x0},${top + h} ${x0 + rad},${top + h} H${x1 - rad} Q${x1},${top + h} ${x1},${top + h - rad} V${y(0)} Z`;
+    el("path", { d, fill: cssVar(r.cv < 0 ? "--over" : "--under") }, svg);
+  });
+  const worst = R.reduce((m, r, i) => (r.cv < R[m].cv ? i : m), 0);
+  if (R[worst].cv < 0) {
+    const t = el("text", { x: x(worst), y: y(R[worst].cv) + 14, "text-anchor": "middle" }, svg);
+    t.style.fill = cssVar("--text-primary"); t.style.fontWeight = 600;
+    t.textContent = `${sgn(R[worst].cv)} cars`;
+  }
+  bindHover(chart, svg, W, H, x, bw, i => tipHtml(R[i], tgt, rate));
+}
+
+function table(R, tgt, rate) {
+  const live = R.filter(r => r.g > 0 || r.c > 0);
+  const G = GAL.reduce((a, b) => a + b, 0), C = CARS.reduce((a, b) => a + b, 0);
+  const costCol = rate > 0;
+  const cost = r => costCol ? `<td>${r.gv > 0 ? "$" + fmt(r.gv / 1000 * rate, 2) : "—"}</td>` : "";
+  $("#tbl").innerHTML = `
+    <thead><tr><th>Hour</th><th>Gallons</th><th>Cars</th><th>GPC</th><th>Target gal</th><th>Gal variance</th>
+      <th>Cars supported</th><th>Car variance</th>${costCol ? "<th>Excess $</th>" : ""}</tr></thead>
+    <tbody>${live.map(r => `<tr><td>${r.h}${r.closed ? " (closed)" : ""}</td><td>${fmt(r.g)}</td><td>${fmt(r.c)}</td>
+      <td>${r.gpc === null ? "—" : fmt(r.gpc, 1)}</td><td>${fmt(r.tg)}</td><td>${sgn(r.gv)}</td>
+      <td>${fmt(r.sup, 1)}</td><td>${sgn(r.cv, 1)}</td>${cost(r)}</tr>`).join("")}</tbody>
+    <tfoot><tr><td>Total</td><td>${fmt(G)}</td><td>${fmt(C)}</td><td>${fmt(G / C, 1)}</td><td>${fmt(C * tgt)}</td>
+      <td>${sgn(G - C * tgt)}</td><td>${fmt(G / tgt, 1)}</td><td>${sgn(C - G / tgt, 1)}</td>
+      ${costCol ? `<td>$${fmt(Math.max(G - C * tgt, 0) / 1000 * rate, 2)}</td>` : ""}</tr></tfoot>`;
+}
+
+function render() {
+  const tgt = Math.max(1, parseFloat($("#tgt").value) || 30);
+  const rate = parseFloat($("#rate").value) || 0;
+  const R = rows(tgt);
+  kpis(tgt, rate); drawUsage(R, tgt, rate); drawVariance(R, tgt, rate); table(R, tgt, rate);
+}
+$("#tgt").addEventListener("input", e => { $("#tgtRange").value = e.target.value; render(); });
+$("#tgtRange").addEventListener("input", e => { $("#tgt").value = e.target.value; render(); });
+$("#rate").addEventListener("input", render);
+window.addEventListener("resize", render);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+render();
+</script>
+</body>
+</html>

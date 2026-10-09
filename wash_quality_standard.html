@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tunnel Wash Quality</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f5f5f3; --card: #ffffff; --ink: #1a1a18; --ink-2: #5f5e5a; --ink-3: #888780;
+    --line: #e3e1d9; --line-2: #d3d1c7; --accent: #185FA5; --accent-bg: #E6F1FB;
+    --time: #2a78d6; --time-bg: #e6f0fb;
+    --brush: #b4561f; --brush-bg: #fbeee6;
+    --chem: #0f7a55; --chem-bg: #e3f5ee;
+    --blow: #6250d6; --blow-bg: #efedfb;
+    --water: #4a6b82; --water-bg: #e9eff3;
+    --t-oem: #0C447C; --t-oem-bg: #B5D4F4;
+    --t-trade: #085041; --t-trade-bg: #9FE1CB;
+    --t-op: #6b4a00; --t-op-bg: #f5dc9c;
+    --t-vendor: #5a2d6b; --t-vendor-bg: #e6cdf0;
+    --t-set: #7a1f1f; --t-set-bg: #f6caca;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --card: #1d1d1b; --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+      --line: #2e2e2b; --line-2: #3a3a36; --accent: #6aa8ea; --accent-bg: #16283b;
+      --time: #5d9be8; --time-bg: #172636; --brush: #e0864f; --brush-bg: #33221a;
+      --chem: #3cbf8d; --chem-bg: #15302a; --blow: #9a8ff0; --blow-bg: #241f3d;
+      --water: #8fb0c7; --water-bg: #1d2830;
+      --t-oem: #cfe3f8; --t-oem-bg: #23415f; --t-trade: #c9f0e1; --t-trade-bg: #1e4a3e;
+      --t-op: #f6e3b0; --t-op-bg: #4a3a12; --t-vendor: #ecd7f5; --t-vendor-bg: #45284f;
+      --t-set: #f8d2d2; --t-set-bg: #5a2424;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --card: #1d1d1b; --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+    --line: #2e2e2b; --line-2: #3a3a36; --accent: #6aa8ea; --accent-bg: #16283b;
+    --time: #5d9be8; --time-bg: #172636; --brush: #e0864f; --brush-bg: #33221a;
+    --chem: #3cbf8d; --chem-bg: #15302a; --blow: #9a8ff0; --blow-bg: #241f3d;
+    --water: #8fb0c7; --water-bg: #1d2830;
+    --t-oem: #cfe3f8; --t-oem-bg: #23415f; --t-trade: #c9f0e1; --t-trade-bg: #1e4a3e;
+    --t-op: #f6e3b0; --t-op-bg: #4a3a12; --t-vendor: #ecd7f5; --t-vendor-bg: #45284f;
+    --t-set: #f8d2d2; --t-set-bg: #5a2424;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--ink);
+         font-size: 15px; line-height: 1.6; padding: 2rem 16px 4rem; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1, h2, h3 { font-family: 'Syne', sans-serif; line-height: 1.2; }
+  .eyebrow { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .12em;
+             text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  h1 { font-size: 34px; margin-bottom: 10px; }
+  .lede { color: var(--ink-2); max-width: 760px; font-size: 16px; }
+  hr { border: none; border-top: 1.5px solid var(--line-2); margin: 1.5rem 0; }
+
+  nav.toc { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 10px 0;
+            display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--line-2); margin-bottom: 1.5rem; }
+  nav.toc a { white-space: nowrap; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line-2);
+              background: var(--card); color: var(--ink-2); text-decoration: none; font-size: 13px; font-weight: 500; }
+  nav.toc a:hover { border-color: var(--ink-3); color: var(--ink); }
+
+  section { margin: 2.5rem 0; scroll-margin-top: 64px; }
+  .sec-head { display: flex; align-items: center; gap: 12px; padding-bottom: 10px;
+              border-bottom: 2px solid var(--line-2); margin-bottom: 1rem; flex-wrap: wrap; }
+  .sec-head h2 { font-size: 22px; }
+  .pill { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .1em;
+          text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+  .p-time { background: var(--time-bg); color: var(--time); }
+  .p-brush { background: var(--brush-bg); color: var(--brush); }
+  .p-chem { background: var(--chem-bg); color: var(--chem); }
+  .p-blow { background: var(--blow-bg); color: var(--blow); }
+  .p-water { background: var(--water-bg); color: var(--water); }
+  h3 { font-size: 16px; margin: 1.4rem 0 .5rem; }
+  p { margin-bottom: .7rem; }
+  .muted { color: var(--ink-2); }
+  .small { font-size: 13px; }
+
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .card h4 { font-family: 'Syne', sans-serif; font-size: 14px; margin-bottom: 6px; }
+  .card p, .card li { font-size: 14px; color: var(--ink-2); }
+  .card ul { padding-left: 18px; }
+  .bar-time { border-top: 4px solid var(--time); }
+  .bar-brush { border-top: 4px solid var(--brush); }
+  .bar-chem { border-top: 4px solid var(--chem); }
+  .bar-blow { border-top: 4px solid var(--blow); }
+  .bar-water { border-top: 4px solid var(--water); }
+
+  .outcomes { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 1rem 0; }
+  .outcome { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .outcome b { display: block; font-family: 'Syne', sans-serif; font-size: 18px; }
+  .outcome span { font-size: 13px; color: var(--ink-2); }
+
+  /* Tunnel flow */
+  .flow { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0 8px; }
+  .zone { flex: 1 0 118px; border-radius: 8px; padding: 10px; font-size: 12px; line-height: 1.4; position: relative; }
+  .zone b { display: block; font-size: 13px; margin-bottom: 2px; }
+  .zone.z-time { background: var(--time-bg); color: var(--ink); }
+  .zone.z-chem { background: var(--chem-bg); }
+  .zone.z-brush { background: var(--brush-bg); }
+  .zone.z-blow { background: var(--blow-bg); }
+  .zone.z-water { background: var(--water-bg); }
+  .zone small { color: var(--ink-2); }
+  .flow-axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-3); margin-bottom: 4px; }
+
+  /* Tables */
+  .tbl { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: .5rem 0 1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; font-weight: 600; color: var(--ink-2); background: var(--bg); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.val { font-variant-numeric: tabular-nums; font-weight: 500; min-width: 150px; }
+  td.src { white-space: nowrap; }
+  td.src a { color: var(--accent); text-decoration: none; font-size: 12px; }
+
+  .tier { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 4px; white-space: nowrap; }
+  .t-oem { background: var(--t-oem-bg); color: var(--t-oem); }
+  .t-trade { background: var(--t-trade-bg); color: var(--t-trade); }
+  .t-op { background: var(--t-op-bg); color: var(--t-op); }
+  .t-vendor { background: var(--t-vendor-bg); color: var(--t-vendor); }
+  .t-set { background: var(--t-set-bg); color: var(--t-set); }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; font-size: 13px; color: var(--ink-2); margin-top: .5rem; }
+
+  .callout { background: var(--accent-bg); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 16px; margin: 1rem 0; font-size: 14px; }
+  .callout b { color: var(--ink); }
+
+  /* Calculator */
+  .calc { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .calc label { font-size: 12px; color: var(--ink-2); display: block; margin-bottom: 4px; }
+  .calc input { width: 100%; padding: 8px 10px; border: 1px solid var(--line-2); border-radius: 8px;
+                background: var(--bg); color: var(--ink); font: inherit; }
+  .calc-out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .calc-out div { background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+  .calc-out b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; font-family: 'Syne', sans-serif; }
+  .calc-out span { font-size: 12px; color: var(--ink-2); }
+
+  ol.sources { padding-left: 22px; font-size: 13px; color: var(--ink-2); columns: 2 380px; column-gap: 32px; }
+  ol.sources li { margin-bottom: 4px; break-inside: avoid; }
+  ol.sources a { color: var(--accent); word-break: break-word; }
+  sup a { color: var(--accent); text-decoration: none; font-size: 10px; }
+  sup + sup::before { content: ","; font-size: 10px; color: var(--ink-3); }
+
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line-2); font-size: 12px; color: var(--ink-3); }
+  @media (max-width: 600px) { h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Maintenance &amp; Facilities · Reference standard</div>
+  <h1>Tunnel Wash Quality</h1>
+  <p class="lede">What a quality wash is, what controls it, and how to measure it. Covers four equipment areas: timing, brushes, chemicals and applicators, and blowers, plus water quality. Each reference value is tagged with how strong its source is, so you can tell OEM settings from industry rules of thumb.</p>
+</header>
+<hr />
+
+<nav class="toc" aria-label="Sections">
+  <a href="#model">Quality model</a>
+  <a href="#timing">Timing</a>
+  <a href="#brushes">Brushes</a>
+  <a href="#chem">Chemicals &amp; applicators</a>
+  <a href="#blowers">Blowers</a>
+  <a href="#water">Water</a>
+  <a href="#defects">Defect → cause</a>
+  <a href="#cadence">Inspection cadence</a>
+  <a href="#scorecard">Scorecard &amp; data</a>
+  <a href="#sources">Sources</a>
+</nav>
+
+<!-- ============ MODEL ============ -->
+<section id="model">
+  <div class="sec-head"><h2>Quality model</h2></div>
+
+  <p>The customer judges a wash on what they see when they drive out. That breaks into five outcomes, and every one traces back to a piece of equipment we maintain.</p>
+  <div class="outcomes">
+    <div class="outcome"><b>Clean</b><span>No road film, bugs, brake dust or rocker-panel dirt left behind.</span></div>
+    <div class="outcome"><b>Dry</b><span>No pooled water on roof, rear hatch, mirrors or trim when exiting.</span></div>
+    <div class="outcome"><b>Shiny</b><span>No film, streaks or spots; protectant evenly applied.</span></div>
+    <div class="outcome"><b>Finished</b><span>Tires evenly dressed; no tire-shine sling on wheels or paint.</span></div>
+    <div class="outcome"><b>Undamaged</b><span>No mirror, wiper, antenna, trim or paint damage.</span></div>
+  </div>
+
+  <h3>What makes a car clean</h3>
+  <p>Cleaning depends on five factors that trade off against each other: <b>chemistry, mechanical action (friction and pressure), time (dwell), temperature and water quality</b>. If one factor is short, another has to make up for it.<sup><a href="#s36">36</a></sup> In a tunnel, chain speed sets the time, brushes and high-pressure arches supply the mechanical action, applicators deliver the chemistry, and the water heater and RO system cover temperature and water quality. A failure in one area shows up as a quality defect unless another area is pushed harder, and pushing harder usually costs chemicals, water or brush life.</p>
+
+  <h3>Typical express-tunnel sequence</h3>
+  <div class="flow-axis"><span>Entry</span><span>Conveyor direction →</span><span>Exit</span></div>
+  <div class="flow" role="list">
+    <div class="zone z-time" role="listitem"><b>Load / correlator</b><small>Chain speed and car spacing set the dwell time everywhere downstream</small></div>
+    <div class="zone z-chem" role="listitem"><b>Presoak (high pH)</b><small>Breaks down road film; needs ~4–6 ft of travel before the next step</small></div>
+    <div class="zone z-chem" role="listitem"><b>Presoak 2 (low pH) / tire &amp; wheel</b><small>Second chemistry step; HP wheel blasters</small></div>
+    <div class="zone z-brush" role="listitem"><b>Friction</b><small>Mitter, wraps, rockers, tire brushes with lubricating foam</small></div>
+    <div class="zone z-chem" role="listitem"><b>HP rinse / polish</b><small>Removes loosened soil and chemical residue</small></div>
+    <div class="zone z-chem" role="listitem"><b>Protectant / drying agent</b><small>Ceramic or sealant, then a drying agent that beads water off</small></div>
+    <div class="zone z-water" role="listitem"><b>RO final rinse</b><small>Low-TDS rinse so drying leaves no spots</small></div>
+    <div class="zone z-blow" role="listitem"><b>Dryers</b><small>Overhead producers first, then angled sides/rear</small></div>
+    <div class="zone z-chem" role="listitem"><b>Tire shine</b><small>Metered dose applied to the rubber only</small></div>
+  </div>
+  <p class="small muted">Steps and order vary by site equipment package. The sequence follows industry chemical guides.<sup><a href="#s38">38</a></sup><sup><a href="#s1">1</a></sup></p>
+
+  <h3>How sure is each number</h3>
+  <p class="small muted">There is no single published industry standard for tunnel wash quality. Every value below is tagged by where it comes from:</p>
+  <div class="legend">
+    <span><span class="tier t-oem">OEM</span> Equipment maker's manual or spec</span>
+    <span><span class="tier t-trade">Trade</span> Industry trade publication or training</span>
+    <span><span class="tier t-vendor">Vendor</span> Supplier marketing claim</span>
+    <span><span class="tier t-op">Operator</span> Single operator's report (forum)</span>
+    <span><span class="tier t-set">Tsunami to set</span> No source; we must set our own baseline</span>
+  </div>
+  <div class="callout"><b>Rule:</b> Our own OEM manual (Sonny's, MacNeil, PECO, etc.) overrides anything here. Use these values to know what to check and roughly where it should land, not as settings to dial in without confirming.</div>
+</section>
+
+<!-- ============ TIMING ============ -->
+<section id="timing">
+  <div class="sec-head"><span class="pill p-time">Pillar 1</span><h2>Timing — chain speed, spacing and dwell</h2></div>
+  <p>Chain speed is the master variable. It sets how long chemicals sit on the car, how many passes each brush makes, and how long each panel sits under the dryers. The best speed is the fastest one where the chemicals and equipment still deliver a clean, dry car. Running slower wastes chemicals; running faster lowers quality.<sup><a href="#s33">33</a></sup> Keep the speed consistent: sites that speed up at peak and slow down off-peak produce uneven quality.<sup><a href="#s3">3</a></sup></p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Parameter</th><th>Reference value</th><th>Why it matters</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>Chain speed convention</td><td class="val">Inches of roller travel in 15 s = "CPH" setting</td><td>So 100 CPH = 100 in / 15 s = 33.3 ft/min. The setting is a speed, not real throughput.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s32">32</a></td></tr>
+      <tr><td>Actual throughput</td><td class="val">3,600 ÷ seconds per (car length + gap)</td><td>Real cars/hr depend on car length and spacing. Example: 16 ft car + 3.5 ft gap at ~7.3 in/s ≈ 112 cars/hr.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s32">32</a></td></tr>
+      <tr><td>Missed rollers</td><td class="val">Every 3 missed rollers ≈ −1 CPH max</td><td>Loading discipline at the correlator is a throughput <i>and</i> a quality issue: wide gaps waste capacity; tight gaps crowd the brushes and dryers.</td><td class="src"><span class="tier t-op">Operator</span> <a href="#s33">33</a></td></tr>
+      <tr><td>Car-to-car gap</td><td class="val">3.5–7 ft typical</td><td>Wraps and dryers need room to retract and reset between cars.</td><td class="src"><span class="tier t-op">Operator</span> <a href="#s33">33</a></td></tr>
+      <tr><td>Conveyor length vs. capacity</td><td class="val">~1 CPH per ft (rule of thumb, disputed); ~100 CPH on an 80 ft tunnel</td><td>Short tunnels lose quality first: not enough drip space, chemical dwell or blower contact.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s2">2</a> <a href="#s32">32</a></td></tr>
+      <tr><td>Presoak dwell distance</td><td class="val">~4–6 ft of travel before the next application or friction</td><td>Too short and the presoak hasn't worked before the brushes hit; dwell in seconds shrinks as speed rises.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s1">1</a></td></tr>
+      <tr><td>Compensating for short dwell</td><td class="val">Apply more liquid volume; rely on friction, not stronger concentration</td><td>Raising concentration to make up for speed raises cost and the risk of film without fixing the dwell problem.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s1">1</a></td></tr>
+      <tr><td>Seasonal speed swing</td><td class="val">70–80 CPH spring–fall → 100–110 on winter peak days</td><td>Presoak concentration has to be adjusted when speed changes seasonally.</td><td class="src"><span class="tier t-op">Operator</span> <a href="#s37">37</a></td></tr>
+      <tr><td>Bug prep</td><td class="val">Needs minutes of dwell</td><td>Can't be fully automated in an express tunnel; needs a prep station or a pre-wash step.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s1">1</a></td></tr>
+      <tr><td>Max chain speed for quality, by site</td><td class="val">—</td><td>Set per site and equipment package from test-car audits at stepped speeds.</td><td class="src"><span class="tier t-set">Tsunami to set</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Dwell and throughput calculator</h3>
+  <div class="card">
+    <div class="calc">
+      <div><label for="cph">Chain speed setting (CPH)</label><input id="cph" type="number" value="100" min="20" max="250" step="1" /></div>
+      <div><label for="len">Conveyor length (ft)</label><input id="len" type="number" value="120" min="20" max="250" step="1" /></div>
+      <div><label for="dw">Presoak → next step distance (ft)</label><input id="dw" type="number" value="5" min="0" max="40" step="0.5" /></div>
+      <div><label for="car">Average car length (ft)</label><input id="car" type="number" value="16" min="10" max="25" step="0.5" /></div>
+      <div><label for="gap">Gap between cars (ft)</label><input id="gap" type="number" value="3.5" min="0" max="20" step="0.5" /></div>
+    </div>
+    <div class="calc-out" aria-live="polite">
+      <div><b id="o-fpm">—</b><span>Chain speed, ft/min</span></div>
+      <div><b id="o-spf">—</b><span>Seconds per foot of travel</span></div>
+      <div><b id="o-dwell">—</b><span>Presoak dwell, seconds</span></div>
+      <div><b id="o-time">—</b><span>Time on conveyor, seconds</span></div>
+      <div><b id="o-tput">—</b><span>Theoretical max cars/hr at this spacing</span></div>
+    </div>
+    <p class="small muted" style="margin-top:10px">Uses the trade convention CPH = inches of roller travel per 15 s<sup><a href="#s32">32</a></sup>. Max cars/hr assumes every gap is filled; real throughput is lower.</p>
+  </div>
+
+  <h3>What to measure</h3>
+  <div class="grid">
+    <div class="card bar-time"><h4>From the controller</h4><ul><li>Chain speed setpoint vs. actual (by hour)</li><li>Cars loaded per hour vs. theoretical max → loading efficiency</li><li>Conveyor stops, e-stops and anti-collision events</li><li>Conveyor drive amps (spikes = wheel hung up or binding)<sup><a href="#s40">40</a></sup></li></ul></div>
+    <div class="card bar-time"><h4>Quality signal</h4><ul><li>Test-car score by speed band (e.g. &lt;80, 80–100, &gt;100 CPH)</li><li>Complaints and rewashes per 1,000 cars by hour of day</li><li>Goal: find the speed at which quality drops off at each site</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ BRUSHES ============ -->
+<section id="brushes">
+  <div class="sec-head"><span class="pill p-brush">Pillar 2</span><h2>Brushes — friction equipment</h2></div>
+  <p>Brushes do most of the mechanical work in a friction tunnel. Their quality rests on four things: <b>RPM, contact pressure / penetration, condition of the media, and lubrication</b>. Too much pressure wears cloth fast and folds mirrors; too little leaves film and dirt.<sup><a href="#s9">9</a></sup> Dirty or matted media drags grit across the clear coat and causes swirl marks.<sup><a href="#s41">41</a></sup></p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Parameter</th><th>Reference value</th><th>Why it matters</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>Brush RPM — cloth</td><td class="val">60–70 RPM (PECO manual)</td><td>Outside the range the manual warns of vehicle or equipment damage. RPM specs differ by maker; one operator reported ~45 RPM cloth.</td><td class="src"><span class="tier t-oem">OEM</span> <a href="#s5">5</a></td></tr>
+      <tr><td>Brush RPM — foam</td><td class="val">85–100 RPM (PECO manual)</td><td>Foam runs faster than cloth. One operator reported ~100 RPM for filament.</td><td class="src"><span class="tier t-oem">OEM</span> <a href="#s5">5</a></td></tr>
+      <tr><td>Wrap air pressure</td><td class="val">0–5 psi at 50–70 CPH (Sonny's guidance, as quoted)</td><td>One operator at ~30 psi was folding mirrors; too low and the wrap lifts off at the bumper-to-fender corner.</td><td class="src"><span class="tier t-op">Operator</span> <a href="#s4">4</a></td></tr>
+      <tr><td>Wrap cloth penetration</td><td class="val">3–4 in on the vehicle</td><td>Less than that means the cloth is worn and needs replacing.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s6">6</a></td></tr>
+      <tr><td>Wrap media length</td><td class="val">Has grown from ~20 in toward ~30 in</td><td>Modern cars are tapered; the media must still reach the narrowest point of the body.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s9">9</a></td></tr>
+      <tr><td>Routine settings check</td><td class="val">Track speed, brush RPM, air pressure</td><td>Check these as a routine, not set-and-forget.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s9">9</a></td></tr>
+      <tr><td>Replacement trigger</td><td class="val">Wear and cars washed, not calendar age</td><td>Cloth wears gradually at the fingertips; foam breaks down to its base. Torn pieces can be replaced individually.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s6">6</a> <a href="#s7">7</a></td></tr>
+      <tr><td>Contamination</td><td class="val">Daily check for oil/grease on media</td><td>Grease on cloth transfers to cars; heavy contamination can force a shutdown to swap cloth.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s6">6</a></td></tr>
+      <tr><td>Lubrication</td><td class="val">High-foaming brush detergent ahead of and during friction</td><td>Lubricity protects paint and extends media life; balanced chemistry and pre-rinsing heavy grit reduce wear.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s38">38</a> <a href="#s6">6</a></td></tr>
+      <tr><td>Wrap retract timing</td><td class="val">Retract as the vehicle passes the front quarter panels</td><td>Reduces mirror damage claims.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s35">35</a></td></tr>
+      <tr><td>Brush motor amps / hydraulic pressure</td><td class="val">—</td><td>Motor current shows how hard each brush is working against the body.<sup><a href="#s40">40</a></sup> No published thresholds; baseline each brush, alarm on deviation.</td><td class="src"><span class="tier t-set">Tsunami to set</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Damage exposure</h3>
+  <div class="grid">
+    <div class="card bar-brush"><h4>Most common damage</h4><p>Mirrors are the most common equipment-related damage in the industry<sup><a href="#s34">34</a></sup>. Antennas and loose items (e.g. bungee cords in top brushes) are next.</p></div>
+    <div class="card bar-brush"><h4>Vehicle electronics</h4><p>In an ICA survey of 245 owners, 79% reported damage to automatic wipers that ran during the wash; collision-avoidance braking in the tunnel is a growing risk (reported second-hand by local news).<sup><a href="#s34">34</a></sup></p></div>
+    <div class="card bar-brush"><h4>Claims defense</h4><p>4–8 cameras along the tunnel plus exit inspection cameras; entrance cameras matter most for proving pre-existing damage. Run test washes before opening.<sup><a href="#s34">34</a></sup></p></div>
+  </div>
+</section>
+
+<!-- ============ CHEMICALS ============ -->
+<section id="chem">
+  <div class="sec-head"><span class="pill p-chem">Pillar 3</span><h2>Chemicals &amp; applicators</h2></div>
+  <p>Chemical quality has two parts: <b>the right concentration</b> (titration and dilution) and <b>the right delivery</b> (nozzles, pumps, arches and placement). Worn nozzles are invisible: they can spray up to 30% over rated flow with no visible change in pattern.<sup><a href="#s25">25</a></sup> Concentration also depends on supply water pH and hardness, so titrate rather than trust the injector setting.<sup><a href="#s13">13</a></sup></p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Parameter</th><th>Reference value</th><th>Why it matters</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>pH sequence</td><td class="val">High-pH presoak → low-pH step → friction foam → rinse → protectants</td><td>The alkaline step breaks road film; the acidic step neutralizes it and removes mineral/inorganic soil.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s38">38</a> <a href="#s13">13</a></td></tr>
+      <tr><td>Exit pH</td><td class="val">~7 (neutral) on the vehicle at exit</td><td>Residual high or low pH means rinse or neutralizer failure, which leads to film and spotting.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s14">14</a></td></tr>
+      <tr><td>Dilution ratio</td><td class="val">Product-specific; e.g. one alkaline presoak: 100–200:1 (IBA) vs. 200–400:1 (conveyor friction)</td><td>The same product runs at different strengths by wash type. Set from the product data sheet, verify by titration.</td><td class="src"><span class="tier t-vendor">Vendor</span> <a href="#s11">11</a></td></tr>
+      <tr><td>Titration method</td><td class="val">Known-ratio: 10 ml product in 500 ml water = 50:1, titrate, subtract a water blank</td><td>Gives a titration value for any product even without the maker's chart.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s10">10</a></td></tr>
+      <tr><td>Cost of not titrating</td><td class="val">~$0.60/car monitored vs. up to ~$1.00 unmonitored</td><td>Single article estimate; directionally consistent with the finding that over-concentration leaves film.</td><td class="src"><span class="tier t-vendor">Vendor</span> <a href="#s12">12</a></td></tr>
+      <tr><td>Nozzle wear test</td><td class="val">Timed bottle test (~30 s); replace above ~110% of rated flow</td><td>Raising pump pressure to make up for worn tips only wastes more water and chemicals. The 110% cutoff comes from industrial spray practice.</td><td class="src"><span class="tier t-vendor">Vendor</span> <a href="#s25">25</a> <a href="#s26">26</a></td></tr>
+      <tr><td>HP arch</td><td class="val">~18 GPM @ 1,000 psi (Axis); 9 GPM top / 18 GPM sides (blastIT); 3.6 GPM per rotary head @ 1,000 psi (Mosmatic)</td><td>Pressure drop with rising flow points to worn nozzles, not the pump.</td><td class="src"><span class="tier t-oem">OEM</span> <a href="#s27">27</a> <a href="#s28">28</a> <a href="#s29">29</a></td></tr>
+            <tr><td>Ceramic / sealant dose</td><td class="val">Full rated dose</td><td>Under-dosed ceramic still sheets water, so it looks fine, but gives little durability or shine. It is acting only as a drying agent.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s31">31</a></td></tr>
+      <tr><td>Protectant dependency</td><td class="val">Rinse agents and drying aids must work upstream</td><td>A sealant cannot fix poor rinsing or inconsistent application upstream.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s31">31</a></td></tr>
+      <tr><td>Tire shine dose</td><td class="val">~0.8–0.9 oz per vehicle; split half front tire / half rear tire</td><td>Tire shine may be the #1 complaint. The product must stay on the rubber, off the rim.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s30">30</a></td></tr>
+      <tr><td>Tire shine manifold</td><td class="val">Level, clean, shielded from dryer turbulence</td><td>A tilted manifold pushes all product to one side, leaving too much in one spot and none on the other.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s30">30</a></td></tr>
+      <tr><td>Product temperature (cold weather)</td><td class="val">Operator heats presoak to ~120°F; warm drying agent beads better below ~60°F ambient</td><td>Heating the drum itself is inefficient and thins the product (higher usage). Warm the supply water instead.</td><td class="src"><span class="tier t-op">Operator</span> <a href="#s37">37</a></td></tr>
+      <tr><td>Chemical usage per car, by product</td><td class="val">—</td><td>Set per product from titration targets × measured flow; alarm on drift. Pairs with the GPC variance view.</td><td class="src"><span class="tier t-set">Tsunami to set</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Applicator failure modes</h3>
+  <div class="grid">
+    <div class="card bar-chem"><h4>Plugged / misaligned nozzle</h4><p>Leaves a stripe of panel without chemical, which shows up as a dirty or filmy band in the same spot on every car. Check the arch spray pattern on the hourly walk.<sup><a href="#s15">15</a></sup></p></div>
+    <div class="card bar-chem"><h4>Worn nozzle</h4><p>Over-delivers water and chemical with a normal-looking pattern. Only a timed flow test finds it.<sup><a href="#s25">25</a></sup></p></div>
+    <div class="card bar-chem"><h4>Empty or lost-prime drum</h4><p>Whole step missing: film, poor shine, or water not breaking before the dryers. Should be caught by a drum-level or flow alarm, not by customers.</p></div>
+    <div class="card bar-chem"><h4>Over-concentration</h4><p>Alkaline soap mixed too strong dries into a film or streaks, especially visible on light-colored vehicles.<sup><a href="#s42">42</a></sup></p></div>
+  </div>
+</section>
+
+<!-- ============ BLOWERS ============ -->
+<section id="blowers">
+  <div class="sec-head"><span class="pill p-blow">Pillar 4</span><h2>Blowers — drying</h2></div>
+  <p>Drying is decided before the car reaches the dryers. <b>Placement and water condition matter more than horsepower.</b><sup><a href="#s16">16</a></sup> If the drying agent and RO rinse make the water bead, the blowers only have to push beads off. If the water sheets, more horsepower is needed and the car still exits wet.<sup><a href="#s17">17</a></sup></p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Parameter</th><th>Reference value</th><th>Why it matters</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>Producer sequence</td><td class="val">First overhead producers remove the bulk; later producers angled to keep sweeping water one direction</td><td>Airflows that oppose each other push water back onto areas already dried.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s16">16</a></td></tr>
+      <tr><td>Rinse arch spacing</td><td class="val">HP rinse far enough upstream that its mist doesn't reach the dryers</td><td>Mist drifting into the dryers re-wets the car.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s16">16</a></td></tr>
+      <tr><td>Water condition</td><td class="val">Water must bead (drying agent working)</td><td>Untreated or sheeting water needs more horsepower to remove.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s17">17</a></td></tr>
+      <tr><td>Pressure vs. volume</td><td class="val">Need enough pressure at the nozzle, not just air volume</td><td>A design that moves lots of air at low pressure needs more HP; a well-designed dryer strips water with less.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s18">18</a></td></tr>
+      <tr><td>Rear of SUVs / vans</td><td class="val">Direct water down and off the vehicle</td><td>The most common wet zone. Blowing water toward the rear leaves it on the hatch.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s19">19</a></td></tr>
+      <tr><td>Producer size</td><td class="val">~7.5–30 HP per producer</td><td>Context for amp baselines and energy cost.</td><td class="src"><span class="tier t-vendor">Vendor</span> <a href="#s20">20</a></td></tr>
+      <tr><td>Contouring nozzle gap</td><td class="val">~6–8 in from the vehicle (side nozzles, patent design)</td><td>Velocity drops quickly with distance; contouring keeps the gap.</td><td class="src"><span class="tier t-oem">OEM</span> <a href="#s21">21</a></td></tr>
+      <tr><td>Intake &amp; safety screens</td><td class="val">Keep clean</td><td>Dirt and wax buildup at the intake cuts CFM and pressure.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s22">22</a></td></tr>
+      <tr><td>Nozzles &amp; air bags</td><td class="val">No tears, holes or discharge-side leaks</td><td>Every leak wastes energy and drying.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s22">22</a></td></tr>
+      <tr><td>Motor amps</td><td class="val">Take amp readings when airflow is inconsistent</td><td>Noise or vibration points to bearing failure or an unbalanced impeller. Engineering note: on a centrifugal blower, a blocked intake <i>lowers</i> amp draw, so low amps point to restricted airflow.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s22">22</a></td></tr>
+      <tr><td>Amp baseline per producer</td><td class="val">—</td><td>Record a clean-filter baseline per blower; alarm on deviation or on a motor not running during operating hours.</td><td class="src"><span class="tier t-set">Tsunami to set</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ WATER ============ -->
+<section id="water">
+  <div class="sec-head"><span class="pill p-water">Cross-cutting</span><h2>Water quality</h2></div>
+  <p>Water quality affects all four pillars: it changes chemical strength, spotting and how hard the dryers have to work.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Parameter</th><th>Reference value</th><th>Why it matters</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>RO final rinse TDS</td><td class="val">&lt;20 ppm acceptable; &lt;10 ppm ideal</td><td>Minerals left after evaporation are the spots. Heat, sun and wind make it worse.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s23">23</a></td></tr>
+      <tr><td>Truly spot-free</td><td class="val">≤5 ppm</td><td>Vendor figures on the visible-spot threshold conflict (one says ~50 ppm, another says spots at 150 ppm on dark cars in sun).</td><td class="src"><span class="tier t-vendor">Vendor</span> <a href="#s24">24</a></td></tr>
+      <tr><td>Reclaim water</td><td class="val">Never in the final rinse</td><td>Reclaim TDS is high from soap, dirt and minerals.</td><td class="src"><span class="tier t-vendor">Vendor</span> <a href="#s24">24</a></td></tr>
+      <tr><td>RO pre-treatment</td><td class="val">Soften hard feed water</td><td>Prevents scale on the membranes and keeps RO output in spec.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s23">23</a></td></tr>
+      <tr><td>Site water tests</td><td class="val">pH at presoak, neutralizer and final rinse; hardness; TDS; chlorine</td><td>The checks on a quarterly quality visit report.</td><td class="src"><span class="tier t-trade">Trade</span> <a href="#s14">14</a></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ DEFECTS ============ -->
+<section id="defects">
+  <div class="sec-head"><h2>What the customer sees → where to look</h2></div>
+  <p>Start from the visible defect, check the most likely cause first. This is the troubleshooting order for site leads.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Defect at exit</th><th>Check first</th><th>Then</th><th>Pillar</th></tr></thead>
+    <tbody>
+      <tr><td>Road film / dirty haze on sides</td><td>Presoak titration and arch spray pattern</td><td>Chain speed vs. dwell; wrap penetration and RPM</td><td><span class="pill p-chem">Chem</span> <span class="pill p-time">Timing</span></td></tr>
+      <tr><td>Same dirty stripe on every car</td><td>Plugged or misaligned nozzle at that height</td><td>Worn or torn brush media at that height</td><td><span class="pill p-chem">Chem</span> <span class="pill p-brush">Brush</span></td></tr>
+      <tr><td>Dirty lower panels / rockers</td><td>Rocker brush condition and position</td><td>Low-pH / wheel step coverage at low height</td><td><span class="pill p-brush">Brush</span> <span class="pill p-chem">Chem</span></td></tr>
+      <tr><td>Brake dust left on wheels</td><td>Wheel cleaner dose and blaster pressure/alignment</td><td>Tire brush wear and contact</td><td><span class="pill p-chem">Chem</span> <span class="pill p-brush">Brush</span></td></tr>
+      <tr><td>Streaks / soapy film</td><td>Over-concentration (titrate)</td><td>HP rinse coverage; exit pH not neutral</td><td><span class="pill p-chem">Chem</span></td></tr>
+      <tr><td>Water spots after drying</td><td>RO TDS on the final rinse</td><td>Drying agent missing; reclaim leaking into final rinse</td><td><span class="pill p-water">Water</span> <span class="pill p-chem">Chem</span></td></tr>
+      <tr><td>Wet roof / hood</td><td>Drying agent (does water bead?)</td><td>First overhead producer height and amps; intake screens</td><td><span class="pill p-chem">Chem</span> <span class="pill p-blow">Blower</span></td></tr>
+      <tr><td>Wet rear hatch on SUVs</td><td>Rear producer angle (pushing water toward the back?)</td><td>Chain speed too fast for blower dwell</td><td><span class="pill p-blow">Blower</span> <span class="pill p-time">Timing</span></td></tr>
+      <tr><td>Re-wetting after the dryers</td><td>HP rinse mist drifting into the dryers</td><td>Opposing airflows between producers</td><td><span class="pill p-blow">Blower</span></td></tr>
+      <tr><td>Tire shine on rims or paint (sling)</td><td>Dose too high; manifold tilted</td><td>Dryer turbulence over the applicator; product gumming</td><td><span class="pill p-chem">Chem</span></td></tr>
+      <tr><td>Swirl marks / fine scratches</td><td>Dirty or matted media holding grit</td><td>Lubricating foam missing; no pre-rinse of heavy grit</td><td><span class="pill p-brush">Brush</span> <span class="pill p-chem">Chem</span></td></tr>
+      <tr><td>Folded or broken mirror</td><td>Wrap air pressure too high</td><td>Wrap retract timing at the front quarter panel</td><td><span class="pill p-brush">Brush</span></td></tr>
+      <tr><td>Grease or black marks on paint</td><td>Oil/grease contamination on brush media</td><td>Leaking bearings or hydraulics above the brush</td><td><span class="pill p-brush">Brush</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="small muted">The matrix is built from the failure modes in the sources above; the order of checks is our recommended troubleshooting sequence.</p>
+</section>
+
+<!-- ============ CADENCE ============ -->
+<section id="cadence">
+  <div class="sec-head"><h2>Inspection cadence</h2></div>
+  <p>Built from the published hourly tunnel walk, the quarterly visit report and brush and dryer upkeep guides.<sup><a href="#s15">15</a></sup><sup><a href="#s14">14</a></sup><sup><a href="#s7">7</a></sup><sup><a href="#s22">22</a></sup></p>
+  <div class="grid">
+    <div class="card"><h4>Before opening</h4><ul><li>Test car through the tunnel; score clean, dry, shiny and tire shine</li><li>Visual check of brushes for tears and grease</li><li>All arches spraying, no plugged nozzles</li><li>Chemical drum levels; pumps primed</li></ul></div>
+    <div class="card"><h4>Hourly walk</h4><ul><li>Presoak arch sprays evenly with clear nozzles</li><li>Rain bar flows along its full length</li><li>Top brush lubricated; wraps returning to home</li><li>Dryers all running; exit cars dry</li><li>Tire shine on rubber only</li></ul></div>
+    <div class="card"><h4>Weekly</h4><ul><li>Hands-on brush media check for fraying (cloth) or cracks (foam)</li><li>Titrate every product; adjust injectors</li><li>RO product TDS reading logged</li><li>Clean dryer intake and safety screens</li><li>Tire shine manifold level and clean</li></ul></div>
+    <div class="card"><h4>Monthly / quarterly</h4><ul><li>Deep clean brushes; check for rust, loose parts and wear; measure wrap penetration</li><li>Nozzle bottle-test flow on every arch</li><li>Blower amp readings vs. baseline; listen for bearing noise and vibration</li><li>Quarterly: full pH, hardness, TDS and chlorine panel and a scored test car</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ SCORECARD ============ -->
+<section id="scorecard">
+  <div class="sec-head"><h2>Scorecard &amp; data roadmap</h2></div>
+  <p>There is no industry-standard wash quality score.<sup><a href="#s14">14</a></sup><sup><a href="#s15">15</a></sup> The proposal below is a <b>Tsunami Wash Quality Index (WQI)</b> combining the four signals we can actually measure. The weights are a starting proposal for leadership to approve, not a sourced standard.</p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Component</th><th>Proposed weight</th><th>Measure</th><th>Data source</th></tr></thead>
+    <tbody>
+      <tr><td>Test-car audit</td><td class="val">40%</td><td>Daily test car scored Pass / Flag / Fail on clean (front, sides, rear, rockers, wheels, glass), dry (roof, hood, rear, mirrors), shiny (film, streaks, spots), tire shine</td><td>Site lead app checklist</td></tr>
+      <tr><td>Equipment health</td><td class="val">25%</td><td>% of operating hours with all brushes, arches and blowers in spec (amps, RPM, pressure within baseline band); offline minutes</td><td>Controller / Alerts &amp; Offline tabs</td></tr>
+      <tr><td>Chemistry &amp; water compliance</td><td class="val">20%</td><td>Titrations in range; RO TDS &lt;10 ppm; exit pH ~7; gallons per car vs. target</td><td>Weekly logs; Usage tab (GPC variance)</td></tr>
+      <tr><td>Customer signal</td><td class="val">15%</td><td>Rewashes, quality complaints and damage claims per 1,000 cars</td><td>POS / CRM / claims log</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout"><b>Why it matters financially:</b> one customer-experience study links a 6-point increase in "Highly Satisfied" ratings on wash quality to about 11% more potential revenue.<sup><a href="#s39">39</a></sup> For a membership model, wash quality drives retention.</div>
+
+  <h3>What to add to the Snowflake / Sigma dashboard</h3>
+  <p class="muted small">The current tabs are Usage, Alerts, Offline and Cleaning. A <b>Quality</b> tab could join these signals by site and hour, depending on which ones the controllers already log:</p>
+  <div class="grid">
+    <div class="card bar-time"><h4>Timing</h4><ul><li>Chain speed actual vs. setpoint</li><li>Cars/hr vs. theoretical max (loading efficiency)</li><li>Quality score by speed band</li></ul></div>
+    <div class="card bar-brush"><h4>Brushes</h4><ul><li>Motor amps / hydraulic pressure per brush vs. baseline</li><li>Cars washed since last media change</li><li>Damage claims per 1,000 cars</li></ul></div>
+    <div class="card bar-chem"><h4>Chemicals</h4><ul><li>Chemical usage per car per product vs. target</li><li>Drum-level / no-flow alarms</li><li>Gallons per car variance (built)</li></ul></div>
+    <div class="card bar-blow"><h4>Blowers</h4><ul><li>Amps per producer vs. baseline</li><li>Producer runtime vs. cars washed</li><li>VFD fault count</li></ul></div>
+    <div class="card bar-water"><h4>Water</h4><ul><li>RO product TDS (continuous sensor if installed)</li><li>RO recovery / reject ratio</li><li>Closed-hours gallons (built)</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ SOURCES ============ -->
+<section id="sources">
+  <div class="sec-head"><h2>Sources</h2></div>
+  <p class="small muted">Gathered from search results in October 2026. Most car wash guidance is published by trade magazines, suppliers and operators rather than independent testing. Confirm every setting against our equipment manuals.</p>
+  <ol class="sources">
+    <li id="s1"><a href="https://www.carwash.com/science-of-dwell-time/">The science of dwell time during a carwash — PC&amp;D</a></li>
+    <li id="s2"><a href="https://www.carwash.com/determining-right-tunnel-length/">Determining the right tunnel length — PC&amp;D</a></li>
+    <li id="s3"><a href="https://drb.com/resources/learning_library/car_wash_tunnel_metrics">Top metrics for car wash success — DRB</a></li>
+    <li id="s4"><a href="https://www.carwashforum.com/threads/help-tiger-striping-on-side-of-vehicles.2598/latest">Tiger striping / wrap pressure thread — CarWashForum</a></li>
+    <li id="s5"><a href="https://www.carwashforum.com/threads/rotation-speed-of-side-brush.13529/">Rotation speed of side brush</a> and <a href="https://www.carwashforum.com/threads/wrap-rpm-and-chain-speed.9861/">Wrap RPM and chain speed</a> — CarWashForum (quoting PECO manual)</li>
+    <li id="s6"><a href="https://www.carwash.com/best-practices-carwash-brushes/">Best practices for carwash brushes</a>; <a href="https://www.carwash.com/boosting-carwash-brush-curtain-performance/">Boosting brush and curtain performance</a> — PC&amp;D</li>
+    <li id="s7"><a href="https://ccentral.ca/brush-brush-maintenance">Brush up on brush maintenance — Canadian Carwash Central</a>; <a href="https://blog.kleen-ritecorp.com/a-complete-guide-for-car-wash-tunnel-tire-brush-maintenance/">Tire brush maintenance guide — Kleen-Rite</a></li>
+    <li id="s8"><a href="https://www.kleen-ritecorp.com/c-577-car-wash-cloth-brush-replacement.aspx">Cloth brush replacement — Kleen-Rite</a> (background)</li>
+    <li id="s9"><a href="https://www.carwash.com/optimizing-cloth-foam/">Optimizing cloth and foam — PC&amp;D</a></li>
+    <li id="s10"><a href="https://www.carwash.com/how-to-calculate-the-chemical-ratio-without-a-titration-chart/">Calculate chemical ratio without a titration chart — PC&amp;D</a></li>
+    <li id="s11"><a href="https://www.simoniz.com/Customer-Content/www/CMS/files/Car-Wash-Catalog/Pre-Soaks.pdf">Presoaks catalog — Simoniz</a></li>
+    <li id="s12"><a href="https://www.carwash.com/?p=12816">Reducing cost by using chemical titration — PC&amp;D</a></li>
+    <li id="s13"><a href="https://www.carwash.com/ph-balance-carwash-chemistry/">Understanding pH in carwash chemistry</a>; <a href="https://www.carwash.com/chemical-dilution-understanding-ph-product-strength-mixing-habits/">Chemical dilution</a> — PC&amp;D</li>
+    <li id="s14"><a href="https://www.getmaintainx.com/procedures/d/-UoVq0c1_oo/det-private-branded-quarterly-visit-report">Quarterly visit report template — MaintainX</a></li>
+    <li id="s15"><a href="https://www.getmaintainx.com/procedures/d/P3SQaSSpjHg/carwash-hourly-tunnel-walk">Carwash hourly tunnel walk — MaintainX</a></li>
+    <li id="s16"><a href="https://www.carwash.com/3-myths-blowers-drying/">3 myths about blowers and drying — PC&amp;D</a></li>
+    <li id="s17"><a href="https://www.carwash.com/getting-best-dryer-results/">Getting the best dryer results — PC&amp;D</a></li>
+    <li id="s18"><a href="https://www.carwash.com/proper-carwash-dryer-setup/">Proper carwash dryer setup — PC&amp;D</a></li>
+    <li id="s19"><a href="https://www.carwash.com/whats-new-carwash-dryers/">What's new in carwash dryers — PC&amp;D</a></li>
+    <li id="s20"><a href="https://www.kleen-ritecorp.com/c-1954-commercial-car-wash-drying-systems.aspx">Commercial drying systems — Kleen-Rite</a></li>
+    <li id="s21"><a href="https://patents.google.com/patent/US4809392">US4809392A — Dryer for automatic car wash equipment</a></li>
+    <li id="s22"><a href="https://www.carwash.com/year-round-dryer-maintenance-pays-off-in-winter/">Year-round dryer maintenance</a>; <a href="https://www.carwash.com/dedicated-dryer-upkeep/">Dedicated dryer upkeep</a> — PC&amp;D</li>
+    <li id="s23"><a href="https://www.carwash.com/presenting-the-five-factors-of-clean-water-quality/">Five factors of clean: water quality</a>; <a href="https://www.carwash.com/carwashs-guide-reverse-osmosis/">Guide to reverse osmosis</a> — PC&amp;D</li>
+    <li id="s24"><a href="https://www.ampac1.com/industries/car-wash">Car wash RO — AMPAC</a></li>
+    <li id="s25"><a href="https://blog.kleen-ritecorp.com/how-to-spot-spray-nozzle-wear-at-your-car-wash/">How to spot spray nozzle wear — Kleen-Rite</a></li>
+    <li id="s26"><a href="https://nozzle-pro.com/pages/how-to-detect-nozzle-wear">Signs of a worn spray nozzle — Nozzle-Pro</a>; <a href="https://www.spray.com/en-eu/blog/how-to-reduce-water-and-chemical-usage-in-car-wash-operations">Reducing water and chemical usage — Spraying Systems</a></li>
+    <li id="s27"><a href="https://store.motorcitywashworks.com/Team360/AxisHPArch/Documents/Axis%20Arch%20Installation%208MANULAXSINS001.pdf">Axis HP arch installation manual — MCWW</a></li>
+    <li id="s28"><a href="https://innovateitcarwash.com/blastit-high-pressure-arch/">blastIT high-pressure arch — Hoffman innovateIT</a></li>
+    <li id="s29"><a href="https://www.abcwashsys.com/product/mosmatic-high-pressure-rinse-arch/">Mosmatic HP rinse arch — ABC Wash Systems</a></li>
+    <li id="s30"><a href="https://www.carwash.com/perfecting-tire-shine-application/">Perfecting tire shine application — PC&amp;D</a>; <a href="https://www.tomorrowstechnician.com/how-to-get-the-perfect-tire-shine/">The perfect tire shine — Tomorrow's Technician</a></li>
+    <li id="s31"><a href="https://www.carwash.com/carwash-sealants-explained/">Carwash sealants explained — PC&amp;D</a></li>
+    <li id="s32"><a href="https://www.carwash.com/conveyor-length-and-cars-per-hour-cph/">Conveyor length and CPH</a>; <a href="https://www.carwash.com/whats-this-car-per-hour-thing/">What's this car-per-hour thing?</a> — PC&amp;D</li>
+    <li id="s33"><a href="https://www.carwashforum.com/goto/post?id=110005">Max cars per hour / chain speed thread — CarWashForum</a></li>
+    <li id="s34"><a href="https://www.carwash.com/common-auto-damage-carwash-culprits/">Common auto damage culprits — PC&amp;D</a>; <a href="https://drb.com/resources/learning_library/how_to_fight_bogus_damage_claims_at_your_car_wash">Fighting damage claims — DRB</a>; <a href="https://www.actionnewsjax.com/news/local/duval-county/send-ben-cleaning-up-car-wash-complaints/5XFYJD2VYZAVLHAX4KB63SNUNQ/">ICA survey report — Action News Jax</a></li>
+    <li id="s35"><a href="https://www.carwash.com/?p=12714">Reduce damage claims from wraps — PC&amp;D</a></li>
+    <li id="s36"><a href="https://www.kaercher.com/us/en/home-and-garden/know-how/the-sinners-circle-c3779">The Sinner's Circle — Kärcher</a>; <a href="https://www.caramba.eu/en/?p=45315">How does a car wash work — Caramba</a></li>
+    <li id="s37"><a href="https://www.carwashforum.com/threads/heating-presoak.11249">Heating presoak thread — CarWashForum</a></li>
+    <li id="s38"><a href="https://www.carwash.com/carwash-chemicals-101/">Carwash chemicals 101 — PC&amp;D</a>; <a href="https://blog.kleen-ritecorp.com/selecting-tunnel-wash-chemicals/">Selecting tunnel wash chemicals — Kleen-Rite</a></li>
+    <li id="s39"><a href="https://marketing.smg.com/hubfs/landing-pages/2024/car-wash-applied-insight/Car_Wash_Applied_Insight.pdf">Car Wash Applied Insight — SMG</a></li>
+    <li id="s40"><a href="https://drb.com/tunnel_solutions/tunnel_management/sgt_sudz/motor_control_centers">Smart motor control centers — DRB</a>; <a href="https://kkewash.com/x1-1-automatic-rollover-car-wash-machine-robotic">KKE X1.1 current-feedback brushes</a>; US Patent 9139166 (amp-sensor drive control)</li>
+    <li id="s41"><a href="https://cdcautodetailing.com/automatic-car-wash-scratches/">Automatic car wash scratches — CDC Auto Detailing</a></li>
+    <li id="s42"><a href="https://pbdpressurewashing.slart.cloud/blog/truck-wash-streaks-causes-fixes/">Truck wash streaks: causes and fixes</a></li>
+  </ol>
+</section>
+
+<footer>Tsunami Express · Maintenance &amp; Facilities · Tunnel Wash Quality reference · Oct 2026. Values are reference ranges, not equipment settings. Confirm against OEM manuals before adjusting.</footer>
+</div>
+
+<script>
+  const ids = ["cph", "len", "dw", "car", "gap"];
+  const num = id => parseFloat(document.getElementById(id).value);
+  const out = (id, v) => { document.getElementById(id).textContent = v; };
+  function calc() {
+    const cph = num("cph"), len = num("len"), dw = num("dw"), car = num("car"), gap = num("gap");
+    if (!(cph > 0)) { ["o-fpm","o-spf","o-dwell","o-time","o-tput"].forEach(i => out(i, "—")); return; }
+    const inPerSec = cph / 15;          // CPH convention: inches per 15 s
+    const fpm = inPerSec * 60 / 12;
+    const secPerFt = 12 / inPerSec;
+    out("o-fpm", fpm.toFixed(1));
+    out("o-spf", secPerFt.toFixed(2));
+    out("o-dwell", dw >= 0 ? (dw * secPerFt).toFixed(1) : "—");
+    out("o-time", len > 0 ? Math.round(len * secPerFt).toString() : "—");
+    out("o-tput", car + gap > 0 ? Math.floor(3600 / ((car + gap) * secPerFt)).toString() : "—");
+  }
+  ids.forEach(id => document.getElementById(id).addEventListener("input", calc));
+  calc();
+</script>
+</body>
+</html>

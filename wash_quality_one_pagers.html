@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wash Quality One-Pagers</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #ecebe7; --page: #ffffff; --ink: #1a1a18; --ink-2: #55544f; --ink-3: #8a8982; --line: #e3e1d9;
+    --treat: #2a78d6; --treat-bg: #e8f1fc;
+    --clean: #b4561f; --clean-bg: #fbeee6;
+    --protect: #0f7a55; --protect-bg: #e3f5ee;
+    --dry: #6250d6; --dry-bg: #efedfb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111110; --page: #1c1c1a; --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86; --line: #33332f;
+      --treat: #6aa8ea; --treat-bg: #172636; --clean: #e8925a; --clean-bg: #33221a;
+      --protect: #4cc797; --protect-bg: #15302a; --dry: #a39af2; --dry-bg: #241f3d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111110; --page: #1c1c1a; --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86; --line: #33332f;
+    --treat: #6aa8ea; --treat-bg: #172636; --clean: #e8925a; --clean-bg: #33221a;
+    --protect: #4cc797; --protect-bg: #15302a; --dry: #a39af2; --dry-bg: #241f3d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif;
+         font-size: 12px; line-height: 1.4; padding: 16px; }
+  nav { max-width: 8.5in; margin: 0 auto 16px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  nav a { text-decoration: none; font-weight: 600; font-size: 13px; padding: 6px 14px; border-radius: 8px;
+          background: var(--page); color: var(--ink-2); border: 1px solid var(--line); }
+  nav .hint { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+
+  .page { --c: var(--treat); --cbg: var(--treat-bg);
+          background: var(--page); max-width: 8.5in; min-height: 11in; margin: 0 auto 20px;
+          padding: 0.42in 0.5in; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.08);
+          display: flex; flex-direction: column; scroll-margin-top: 16px; }
+  .page.clean { --c: var(--clean); --cbg: var(--clean-bg); }
+  .page.protect { --c: var(--protect); --cbg: var(--protect-bg); }
+  .page.dry { --c: var(--dry); --cbg: var(--dry-bg); }
+
+  .top { display: flex; justify-content: space-between; align-items: baseline; font-size: 10.5px;
+         color: var(--ink-3); letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+  .steps { display: flex; gap: 4px; margin: 8px 0 12px; }
+  .steps span { flex: 1; text-align: center; font-size: 10.5px; font-weight: 600; padding: 4px 0;
+                border-radius: 4px; background: var(--line); color: var(--ink-3); letter-spacing: .06em; text-transform: uppercase; }
+  .steps span.on { background: var(--c); color: #fff; }
+
+  h1 { font-family: 'Syne', sans-serif; font-size: 34px; line-height: 1; color: var(--c); }
+  .purpose { font-size: 14px; color: var(--ink); margin: 6px 0 10px; max-width: 6.2in; }
+  .standard { background: var(--cbg); border-left: 4px solid var(--c); border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; }
+  .standard b { font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--c); display: block; margin-bottom: 2px; }
+
+  h2 { font-family: 'Syne', sans-serif; font-size: 13px; letter-spacing: .06em; text-transform: uppercase;
+       margin: 10px 0 4px; padding-bottom: 3px; border-bottom: 2px solid var(--c); }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 10.5px; color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 4px 8px 4px 0; }
+  td { padding: 4px 8px 4px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td:first-child { font-weight: 600; width: 24%; }
+  td.t { width: 34%; }
+  tr:last-child td { border-bottom: none; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
+  .fail div { padding: 3px 0; border-bottom: 1px solid var(--line); }
+  .fail div:last-child { border-bottom: none; }
+  .fail b { font-weight: 600; }
+  .fail i { font-style: normal; color: var(--ink-2); }
+  ul { padding-left: 16px; }
+  li { margin-bottom: 2px; }
+  .lbl { font-weight: 600; font-size: 11px; color: var(--c); text-transform: uppercase; letter-spacing: .05em; margin-top: 4px; }
+  .rule { margin-top: 8px; font-weight: 500; }
+  .rule b { color: var(--c); }
+  footer { margin-top: auto; padding-top: 8px; font-size: 10px; color: var(--ink-3); display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); }
+
+  @media (max-width: 700px) {
+    .page { min-height: 0; padding: 20px 16px; }
+    .cols { grid-template-columns: 1fr; }
+    td:first-child, td.t { width: auto; }
+    h1 { font-size: 32px; }
+  }
+  @page { size: letter; margin: 0; }
+  @media print {
+    :root { --bg: #fff; --page: #fff; --ink: #1a1a18; --ink-2: #55544f; --ink-3: #8a8982; --line: #e3e1d9; }
+    body { padding: 0; background: #fff; }
+    nav { display: none; }
+    .page { margin: 0; border-radius: 0; box-shadow: none; height: 11in; min-height: 11in; page-break-after: always; break-after: page; overflow: hidden; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<nav aria-label="Pages">
+  <a href="#treat">Treat</a><a href="#clean">Clean</a><a href="#protect">Protect</a><a href="#dry">Dry</a>
+  <span class="hint">Print → 4 letter pages</span>
+</nav>
+
+<!-- ======================= TREAT ======================= -->
+<section class="page treat" id="treat">
+  <div class="top"><span>Tsunami Express · Wash Quality Standard</span><span>1 of 4</span></div>
+  <div class="steps"><span class="on">Treat</span><span>Clean</span><span>Protect</span><span>Dry</span></div>
+  <h1>Treat</h1>
+  <p class="purpose">Loosen and lift soil with chemistry and time before anything touches the vehicle.</p>
+  <div class="standard"><b>Exit standard</b>Full, even chemical coverage on every panel, wheel and tire, with soil visibly breaking down before the car reaches friction.</div>
+
+  <h2>Key controls</h2>
+  <table>
+    <thead><tr><th>Control</th><th>Target</th><th>How we verify</th></tr></thead>
+    <tbody>
+      <tr><td>Chemical sequence</td><td class="t">High-pH presoak first, then low-pH step</td><td>Alkaline breaks down road film; acidic neutralizes it and lifts mineral soil.</td></tr>
+      <tr><td>Concentration</td><td class="t">Product data-sheet dilution, confirmed by titration</td><td>Weekly titration of each product. Supply water pH and hardness shift results, so don't trust the injector setting alone.</td></tr>
+      <tr><td>Dwell</td><td class="t">~4–6 ft of travel from presoak to the next step (≈9 sec at a 100 CPH setting)</td><td>Calculated per site from chain speed and arch spacing.</td></tr>
+      <tr><td>Chain speed</td><td class="t">Fastest speed that still passes the test car, held steady all day</td><td>Hourly setpoint log. Speeding up at peak and slowing off-peak makes quality uneven.</td></tr>
+      <tr><td>Nozzle coverage</td><td class="t">Every nozzle flowing, even pattern, no dry stripes</td><td>Hourly visual check; timed flow test monthly. Replace nozzles above ~110% of rated flow.</td></tr>
+      <tr><td>Wheels &amp; tires</td><td class="t">Wheel chemistry plus high-pressure blasting before friction</td><td>Test car shows no brake dust at exit.</td></tr>
+      <tr><td>Temperature</td><td class="t">Warm supply water in cold weather</td><td>Seasonal set-up check. Warm the water, not the chemical drum.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols">
+    <div>
+      <h2>Failure → what the customer sees</h2>
+      <div class="fail">
+        <div><b>Low concentration or short dwell</b><br /><i>Road-film haze on sides and rear</i></div>
+        <div><b>Plugged or misaligned nozzle</b><br /><i>Same dirty stripe on every car</i></div>
+        <div><b>Over-concentration</b><br /><i>Soapy film and streaks, worst on light colors</i></div>
+        <div><b>Empty drum or lost prime</b><br /><i>Whole step missing; dull, dirty finish</i></div>
+        <div><b>Worn nozzles</b><br /><i>Nothing visible; up to 30% wasted chemical</i></div>
+      </div>
+    </div>
+    <div>
+      <h2>Checks</h2>
+      <div class="lbl">Daily</div><ul><li>Drum levels; pumps primed</li><li>All presoak arches spraying evenly</li></ul>
+      <div class="lbl">Weekly</div><ul><li>Titrate every product; adjust injectors</li></ul>
+      <div class="lbl">Monthly</div><ul><li>Timed flow test on every nozzle</li></ul>
+      <h2>Measure</h2>
+      <ul><li>Chemical use per car, by product, vs. target</li><li>Chain speed actual vs. setpoint</li><li>Drum-level and no-flow alarms</li></ul>
+    </div>
+  </div>
+  <p class="rule"><b>Rule:</b> When speed cuts dwell, apply more liquid and rely on friction. Don't raise concentration.</p>
+  <footer><span>Reference ranges from industry trade guidance. Confirm settings against the equipment manual.</span><span>Maintenance &amp; Facilities</span></footer>
+</section>
+
+<!-- ======================= CLEAN ======================= -->
+<section class="page clean" id="clean">
+  <div class="top"><span>Tsunami Express · Wash Quality Standard</span><span>2 of 4</span></div>
+  <div class="steps"><span>Treat</span><span class="on">Clean</span><span>Protect</span><span>Dry</span></div>
+  <h1>Clean</h1>
+  <p class="purpose">Remove the loosened soil with friction and rinse, without marking or damaging the vehicle.</p>
+  <div class="standard"><b>Exit standard</b>No film, dirt bands, rocker-panel dirt or brake dust. No swirls, grease marks or damage. Rinsed to neutral pH.</div>
+
+  <h2>Key controls</h2>
+  <table>
+    <thead><tr><th>Control</th><th>Target</th><th>How we verify</th></tr></thead>
+    <tbody>
+      <tr><td>Brush speed</td><td class="t">Within the equipment's RPM spec (foam runs faster than cloth)</td><td>Weekly check. Outside spec risks vehicle or equipment damage.</td></tr>
+      <tr><td>Contact pressure</td><td class="t">Cloth presses ~3–4 in into the vehicle; never enough to fold mirrors</td><td>Monthly penetration measurement. Less than 3 in means worn media.</td></tr>
+      <tr><td>Media condition</td><td class="t">No tears, matting or trapped grit</td><td>Daily visual; weekly hands-on. Replace on wear and cars washed, not age.</td></tr>
+      <tr><td>Lubrication</td><td class="t">Foaming brush detergent on the car before and during friction</td><td>Hourly walk: brushes wet and foamed.</td></tr>
+      <tr><td>Contamination</td><td class="t">Zero oil or grease on the media</td><td>Daily check. Grease on cloth transfers to paint.</td></tr>
+      <tr><td>Wrap retract</td><td class="t">Retracts as the vehicle passes the front quarter panel</td><td>Watch wraps on a test car; mirrors are the top damage claim.</td></tr>
+      <tr><td>Car spacing</td><td class="t">3.5–7 ft between cars</td><td>Gives wraps room to reset between cars.</td></tr>
+      <tr><td>Rinse</td><td class="t">Full high-pressure rinse coverage; ~pH 7 at exit</td><td>Quarterly pH check on a test car.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols">
+    <div>
+      <h2>Failure → what the customer sees</h2>
+      <div class="fail">
+        <div><b>Grit in media / no lubrication</b><br /><i>Swirl marks and fine scratches</i></div>
+        <div><b>Pressure too high / late retract</b><br /><i>Folded or broken mirrors</i></div>
+        <div><b>Worn or mis-set rocker brush</b><br /><i>Dirty lower panels</i></div>
+        <div><b>Torn media at one height</b><br /><i>Repeating dirty band</i></div>
+        <div><b>Grease on media</b><br /><i>Black marks on paint</i></div>
+        <div><b>Poor rinse</b><br /><i>Chemical film and streaks</i></div>
+      </div>
+    </div>
+    <div>
+      <h2>Checks</h2>
+      <div class="lbl">Daily</div><ul><li>Test car before opening</li><li>Media visual: tears, grease</li></ul>
+      <div class="lbl">Weekly</div><ul><li>Hands-on media check: fraying (cloth), cracks (foam)</li><li>Brush speed and pressure settings</li></ul>
+      <div class="lbl">Monthly</div><ul><li>Deep clean; check for rust and loose parts; measure penetration</li></ul>
+      <h2>Measure</h2>
+      <ul><li>Brush motor load vs. each brush's baseline</li><li>Cars washed since last media change</li><li>Damage claims per 1,000 cars</li></ul>
+    </div>
+  </div>
+  <p class="rule"><b>Rule:</b> Most damage claims trace to pressure and retract timing. Keep entrance and exit cameras running for every claim.</p>
+  <footer><span>Reference ranges from industry trade guidance. Confirm settings against the equipment manual.</span><span>Maintenance &amp; Facilities</span></footer>
+</section>
+
+<!-- ======================= PROTECT ======================= -->
+<section class="page protect" id="protect">
+  <div class="top"><span>Tsunami Express · Wash Quality Standard</span><span>3 of 4</span></div>
+  <div class="steps"><span>Treat</span><span>Clean</span><span class="on">Protect</span><span>Dry</span></div>
+  <h1>Protect</h1>
+  <p class="purpose">Seal the clean surface, rinse it spot-free and finish the tires. This is the shine the customer pays for.</p>
+  <div class="standard"><b>Exit standard</b>Uniform gloss, water beading evenly, no spots or streaks. Tires evenly dressed with no sling on wheels or paint.</div>
+
+  <h2>Key controls</h2>
+  <table>
+    <thead><tr><th>Control</th><th>Target</th><th>How we verify</th></tr></thead>
+    <tbody>
+      <tr><td>Sequence</td><td class="t">Protectant / ceramic → drying agent → spot-free final rinse</td><td>A protectant can't fix poor rinsing upstream.</td></tr>
+      <tr><td>Protectant dose</td><td class="t">Full rated dose</td><td>Usage per car vs. target. An under-dosed ceramic still beads water but gives little shine or durability.</td></tr>
+      <tr><td>Final rinse water</td><td class="t">Dissolved solids under 10 ppm (under 20 acceptable; 5 or less fully spot-free)</td><td>Weekly reading on the RO output, continuous if a sensor is installed.</td></tr>
+      <tr><td>Reclaim water</td><td class="t">Never in the final rinse</td><td>Plumbing check. Reclaim carries soap, dirt and minerals.</td></tr>
+      <tr><td>RO feed</td><td class="t">Softened ahead of the membranes</td><td>Scale on membranes drives output out of spec.</td></tr>
+      <tr><td>Tire shine dose</td><td class="t">~0.8–0.9 oz per car, split front and rear tire</td><td>Usage per car; test car shows even dressing.</td></tr>
+      <tr><td>Tire shine applicator</td><td class="t">Level, clean, shielded from dryer air, on rubber only</td><td>A tilted manifold dumps product to one side.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols">
+    <div>
+      <h2>Failure → what the customer sees</h2>
+      <div class="fail">
+        <div><b>High dissolved solids in rinse</b><br /><i>Water spots, worst on dark cars in sun</i></div>
+        <div><b>Under-dosed protectant</b><br /><i>Looks fine at exit; shine fades fast</i></div>
+        <div><b>Tire shine overdose or tilted manifold</b><br /><i>Sling on wheels and lower panels</i></div>
+        <div><b>Protectant line empty</b><br /><i>Dull finish; water sheets, car exits wet</i></div>
+        <div><b>Reclaim crossover</b><br /><i>Spots and film after drying</i></div>
+      </div>
+    </div>
+    <div>
+      <h2>Checks</h2>
+      <div class="lbl">Daily</div><ul><li>Test car: gloss, beading, tire shine</li><li>Protectant and tire shine levels</li></ul>
+      <div class="lbl">Weekly</div><ul><li>RO output reading logged</li><li>Tire shine manifold level and clean</li></ul>
+      <div class="lbl">Quarterly</div><ul><li>Full water panel: pH, hardness, dissolved solids, chlorine</li></ul>
+      <h2>Measure</h2>
+      <ul><li>Protectant and tire shine use per car vs. target</li><li>RO output ppm and recovery ratio</li><li>Spot and shine complaints per 1,000 cars</li></ul>
+    </div>
+  </div>
+  <p class="rule"><b>Rule:</b> Beading alone doesn't prove protection. Confirm the dose per car.</p>
+  <footer><span>Reference ranges from industry trade guidance. Confirm settings against the equipment manual.</span><span>Maintenance &amp; Facilities</span></footer>
+</section>
+
+<!-- ======================= DRY ======================= -->
+<section class="page dry" id="dry">
+  <div class="top"><span>Tsunami Express · Wash Quality Standard</span><span>4 of 4</span></div>
+  <div class="steps"><span>Treat</span><span>Clean</span><span>Protect</span><span class="on">Dry</span></div>
+  <h1>Dry</h1>
+  <p class="purpose">Strip the water off before the car leaves. Drying is mostly decided upstream: water that beads blows off, water that sheets doesn't.</p>
+  <div class="standard"><b>Exit standard</b>Roof, hood, glass, mirrors and rear hatch free of standing water, with no re-wetting after the dryers.</div>
+
+  <h2>Key controls</h2>
+  <table>
+    <thead><tr><th>Control</th><th>Target</th><th>How we verify</th></tr></thead>
+    <tbody>
+      <tr><td>Water condition</td><td class="t">Water beading as the car reaches the dryers</td><td>Watch the roof at the dryer entrance. Sheeting water points to the drying agent, not the blowers.</td></tr>
+      <tr><td>Placement</td><td class="t">First overhead blowers remove the bulk; the rest angled to sweep one way</td><td>Opposing airflows push water back onto dried areas.</td></tr>
+      <tr><td>Rear of SUVs and vans</td><td class="t">Water pushed down and off the back, not toward it</td><td>Test with an SUV; the rear hatch is the most common wet spot.</td></tr>
+      <tr><td>Rinse spacing</td><td class="t">No high-pressure rinse mist reaching the dryer zone</td><td>Visual on a running tunnel.</td></tr>
+      <tr><td>Nozzle distance</td><td class="t">Close to the body (~6–8 in on contouring side nozzles)</td><td>Air speed drops fast with distance.</td></tr>
+      <tr><td>Airflow path</td><td class="t">Clean intake and safety screens; no torn nozzles or air leaks</td><td>Weekly screen cleaning; leaks fixed immediately.</td></tr>
+      <tr><td>Motor health</td><td class="t">Amps within each blower's baseline; no noise or vibration</td><td>Low amps point to a blocked intake. Noise or vibration means bearings or impeller balance.</td></tr>
+      <tr><td>Chain speed</td><td class="t">Leaves enough time under the dryers</td><td>Test-car dryness checked at peak speed.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols">
+    <div>
+      <h2>Failure → what the customer sees</h2>
+      <div class="fail">
+        <div><b>Drying agent missing or weak</b><br /><i>Wet roof and hood; spots later</i></div>
+        <div><b>Rear blower angle wrong</b><br /><i>Wet rear hatch on SUVs</i></div>
+        <div><b>Opposing flows / rinse mist</b><br /><i>Car re-wets after drying</i></div>
+        <div><b>Blocked intake / torn nozzle</b><br /><i>Gradually wetter cars, energy wasted</i></div>
+        <div><b>Speed too high</b><br /><i>Wet cars at peak hours only</i></div>
+      </div>
+    </div>
+    <div>
+      <h2>Checks</h2>
+      <div class="lbl">Hourly</div><ul><li>All blowers running; exit cars dry</li></ul>
+      <div class="lbl">Weekly</div><ul><li>Clean intake and safety screens</li><li>Inspect nozzles and air bags for tears</li></ul>
+      <div class="lbl">Monthly</div><ul><li>Amp reading on every blower vs. baseline</li><li>Listen for bearing noise and vibration</li></ul>
+      <h2>Measure</h2>
+      <ul><li>Amps per blower vs. baseline</li><li>Blower runtime vs. cars washed</li><li>Wet-car complaints by hour of day</li></ul>
+    </div>
+  </div>
+  <p class="rule"><b>Rule:</b> Fix water condition and blower placement before adding horsepower.</p>
+  <footer><span>Reference ranges from industry trade guidance. Confirm settings against the equipment manual.</span><span>Maintenance &amp; Facilities</span></footer>
+</section>
+
+</body>
+</html>

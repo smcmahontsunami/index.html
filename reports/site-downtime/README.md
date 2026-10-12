@@ -4,7 +4,7 @@ Builds the Monday site-downtime read-out for the previous Sunday–Saturday (Cen
 
 Outputs:
 - **Web page** (Claude artifact "Site Downtime Weekly"), republished each Monday at the same link.
-- **One PowerPoint slide** for the weekly surf deck.
+- **One PowerPoint slide** for the weekly surf deck: an editable .pptx, plus a copyable image at the top of the page.
 
 No MaintainX data is stored in this repository. Each run pulls fresh from the API.
 
@@ -14,9 +14,11 @@ No MaintainX data is stored in this repository. Each run pulls fresh from the AP
 export MAINTAINX_API_KEY=...            # MaintainX REST API key
 python3 build_week.py "" 6 data.json   # "" = last completed week; 6 weeks of history
 # write insights.json for the latest week (format below)
-python3 render_html.py data.json insights.json site_downtime.html
 npm install pptxgenjs@3.12.0            # once
 node build_slide.js data.json insights.json Site_Downtime_<week>.pptx
+soffice --headless --convert-to pdf Site_Downtime_<week>.pptx
+pdftoppm -png -r 144 -singlefile Site_Downtime_<week>.pdf slide
+python3 render_html.py data.json insights.json site_downtime.html slide.png   # slide image + copy button on the page
 ```
 
 `insights.json`:

@@ -79,6 +79,11 @@ tfoot td { font-weight: 600; border-top: 2px solid var(--line) }
 .filters button[aria-pressed="true"] { background: var(--navy); color: var(--navy-ink); border-color: var(--navy) }
 a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2px }
 .hyg { display: grid; gap: 8px; margin: 0; padding-left: 18px }
+.slidebox { display: grid; gap: 10px; }
+.slidebox img { width: 100%; max-width: 960px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.slide-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.slide-actions button { font: 600 14px var(--body); color: var(--navy-ink); background: var(--navy); border: 0; border-radius: 6px; padding: 9px 16px; cursor: pointer; }
+.slide-actions span { color: var(--muted); font-size: 13px; }
 .foot { color: var(--muted); font-size: 12px; margin-top: 30px; max-width: 90ch }
 .mini { height: 8px; background: var(--line); border-radius: 2px; min-width: 60px }
 .mini > div { height: 100%; background: var(--gold); border-radius: 2px }
@@ -102,6 +107,15 @@ a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2
 
 <main class="wrap">
   <div class="kpis" id="kpis"></div>
+
+  <section id="slide-sec" hidden>
+    <h2>Surf deck slide</h2>
+    <p class="sub">Copy the slide and paste it into the weekly surf deck. Pasted into PowerPoint it lands as a picture; the editable .pptx comes with the Monday update.</p>
+    <div class="slidebox">
+      <img id="slide" alt="Site downtime slide for the weekly surf deck">
+      <div class="slide-actions"><button type="button" id="copy-slide">Copy slide image</button><span id="copy-msg" role="status"></span></div>
+    </div>
+  </section>
 
   <section class="pair">
     <div>
@@ -147,6 +161,7 @@ a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2
 <script>
 const DATA = /*DATA*/null;
 const INSIGHTS = /*INSIGHTS*/null;
+const SLIDE = /*SLIDE*/null; // {week_start, png: data URI}
 const CAT = { "IT / controls": "--c-it", "Conveyor / chain": "--c-conv", "Hydraulic": "--c-hyd", "Staffing": "--c-staff",
   "Utility power": "--c-power", "Water / chemical": "--c-water", "Other equipment": "--c-other", "Not specified": "--c-na" };
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -253,6 +268,26 @@ function drawTrend() {
       <text x="${x + bwid / 2}" y="${yb + 18}" text-anchor="middle" font-size="11" fill="${sel ? "var(--ink)" : "var(--muted)"}" font-weight="${sel ? 600 : 400}">${d.m}/${d.d}</text>`; });
   $("trend").innerHTML = g + `<text x="${x0}" y="${H - 4}" font-size="11" fill="var(--muted)">Week starting (Sunday)</text>`;
 }
+
+function renderSlide() {
+  const show = SLIDE && SLIDE.week_start === DATA.weeks[state.week].week_start;
+  $("slide-sec").hidden = !show;
+  if (show && $("slide").src !== SLIDE.png) $("slide").src = SLIDE.png;
+}
+$("copy-slide").onclick = async () => {
+  const msg = $("copy-msg");
+  try {
+    const bin = atob(SLIDE.png.split(",")[1]), bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const blob = new Blob([bytes], { type: "image/png" });
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    msg.textContent = "Copied. Paste it into PowerPoint.";
+  } catch (e) {
+    msg.textContent = "Copy isn't allowed here. Right-click the slide and choose Copy image.";
+  }
+};
+const _render = render;
+render = () => { _render(); renderSlide(); };
 
 $("week").innerHTML = DATA.weeks.map((w, i) => `<option value="${i}">${range(w)}</option>`).join("");
 $("week").value = String(state.week);

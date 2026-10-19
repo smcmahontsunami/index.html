@@ -24,14 +24,16 @@ MATCH_WINDOW = timedelta(minutes=60)
 MAX_PLAUSIBLE = timedelta(hours=24)
 MERGE_GAP = timedelta(minutes=5)
 
-CATEGORIES = [  # first match wins
-    ("Staffing", r"staff|associate|walk ?off|late|one person|only one|1 man|nc/ns|no.?show|coverage|solo"
-                 r"|call(ed|s)? ?off|new hire"),
-    ("Utility power", r"power is out|power outage|utility|no power"),
-    ("IT / controls", r"connectivity|devices offline|communication|internet|network|control panel|send station|pos\b"),
-    ("Conveyor / chain", r"chain|sprocket|conveyor|track|roller|take.?up"),
-    ("Hydraulic", r"hydraulic|power pack|hose"),
-    ("Water / chemical", r"water|chemical"),
+CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... onsite staff" is equipment
+    ("Utility power", r"power is out|power outage|utilit|no power|cutting off power|power company"),
+    ("IT / controls", r"connectivity|devices offline|communication|internet|network|control panel|send station"
+                      r"|\bpos\b|\bapp\b|ipad|tablet|kiosk|password|controller"),
+    ("Conveyor / chain", r"chain|sprocket|conveyor|\btrack\b|\brollers?\b|take.?up"),
+    ("Hydraulic", r"hydraulic|power pack|\bhose"),
+    ("Water / chemical", r"water|chemical|back ?flow"),
+    ("Pit / drainage", r"\bpit\b|sump|drain"),
+    ("Staffing", r"staff|associate|walk ?off|\blate\b|running late|one person|only one|1 man|nc/ns|no.?show"
+                 r"|no call|did ?n.?o?t show|didn.t show|coverage|solo|call(ed|s)? ?off|new hire|opener"),
 ]
 
 
@@ -64,6 +66,18 @@ def ts(s):
 def site_code(name):
     m = re.match(r"\s*0*(\d+)", name or "")
     return m.group(1) if m else None
+
+
+def site_from_text(text, site_name):
+    """Site code for a WO with no location: a leading number, else the best unique name match."""
+    m = re.match(r"\s*(?:site down\s*-?\s*)?0*(\d{2,3})\b", text, re.I)
+    if m and m.group(1) in site_name:
+        return m.group(1)
+    words = [t for t in re.findall(r"[a-z]{3,}", text.lower()) if t not in {"site", "down"}]
+    scores = sorted(((sum(t in n.lower() for t in words), c) for c, n in site_name.items()), reverse=True)
+    if scores and scores[0][0] >= 2 and (len(scores) == 1 or scores[0][0] > scores[1][0]):
+        return scores[0][1]
+    return None
 
 
 def categorize(text):
@@ -157,7 +171,7 @@ def build(ws, we, raw):
 
     events, used = [], set()
     for w in sorted(down_wos, key=lambda w: w["createdAt"]):
-        code = site_code(w.get("location", {}).get("name") or "")
+        code = site_code(w.get("location", {}).get("name") or "") or site_from_text(w["title"], site_name)
         w_start, w_end = ts(w["createdAt"]), ts(w.get("completedAt"))
         # A WO logged after the fact carries the real start in startDate (ignore date-only 00:00).
         sd = ts(w.get("startDate"))
@@ -201,6 +215,7 @@ def build(ws, we, raw):
         ev["district"] = district_of.get(ev["code"], "Unassigned")
         ev["manager"] = manager_of.get(ev["district"], "")
         ev["category"] = categorize(ev["title"] + " " + ev["reason"])
+        ev["overnight"] = bool(ev["end"] and ev["start"].astimezone(CT).date() != ev["end"].astimezone(CT).date())
     events.sort(key=lambda e: e["start"])
     for ev in events:
         for k in ("start", "end"):

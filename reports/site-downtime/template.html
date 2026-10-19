@@ -8,7 +8,7 @@
   --bg: #f6f8fb; --surface: #ffffff; --ink: #0d2240; --muted: #56647a; --line: #dfe5ee;
   --navy: #0f2c55; --navy-ink: #ffffff; --navy-muted: #b9c8de; --gold: #c99a2e; --gold-soft: #f4e6c2;
   --bar: #9fb0c8; --good: #2f7d4f; --bad: #b23b2e;
-  --c-it: #3d6fb6; --c-conv: #c99a2e; --c-hyd: #7a5aa6; --c-staff: #c1592f; --c-power: #2f8a8a; --c-water: #4f8f3c; --c-other: #8a8f99; --c-na: #b7bdc7;
+  --c-it: #3d6fb6; --c-conv: #c99a2e; --c-hyd: #7a5aa6; --c-staff: #c1592f; --c-power: #2f8a8a; --c-water: #4f8f3c; --c-pit: #6b7f3a; --c-other: #8a8f99; --c-na: #b7bdc7;
   --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
   --body: "Barlow", "Segoe UI", Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
@@ -17,13 +17,13 @@
   --bg: #0b1424; --surface: #121e33; --ink: #e6edf7; --muted: #9aa8bd; --line: #24324a;
   --navy: #0a1a33; --navy-ink: #f1f5fb; --navy-muted: #8fa3c2; --gold: #e0b04a; --gold-soft: #3a2f16;
   --bar: #4a5d7c; --good: #5cb47f; --bad: #e07766;
-  --c-it: #6f9be0; --c-conv: #e0b04a; --c-hyd: #a98bd6; --c-staff: #e88a5f; --c-power: #5cbcbc; --c-water: #7cbf68; --c-other: #a3a9b4; --c-na: #6c7585;
+  --c-it: #6f9be0; --c-conv: #e0b04a; --c-hyd: #a98bd6; --c-staff: #e88a5f; --c-power: #5cbcbc; --c-water: #7cbf68; --c-pit: #a8bd6e; --c-other: #a3a9b4; --c-na: #6c7585;
   color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0b1424; --surface: #121e33; --ink: #e6edf7; --muted: #9aa8bd; --line: #24324a;
   --navy: #0a1a33; --navy-ink: #f1f5fb; --navy-muted: #8fa3c2; --gold: #e0b04a; --gold-soft: #3a2f16;
   --bar: #4a5d7c; --good: #5cb47f; --bad: #e07766;
-  --c-it: #6f9be0; --c-conv: #e0b04a; --c-hyd: #a98bd6; --c-staff: #e88a5f; --c-power: #5cbcbc; --c-water: #7cbf68; --c-other: #a3a9b4; --c-na: #6c7585;
+  --c-it: #6f9be0; --c-conv: #e0b04a; --c-hyd: #a98bd6; --c-staff: #e88a5f; --c-power: #5cbcbc; --c-water: #7cbf68; --c-pit: #a8bd6e; --c-other: #a3a9b4; --c-na: #6c7585;
   color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); }
@@ -163,7 +163,7 @@ const DATA = /*DATA*/null;
 const INSIGHTS = /*INSIGHTS*/null;
 const SLIDE = /*SLIDE*/null; // {week_start, png: data URI}
 const CAT = { "IT / controls": "--c-it", "Conveyor / chain": "--c-conv", "Hydraulic": "--c-hyd", "Staffing": "--c-staff",
-  "Utility power": "--c-power", "Water / chemical": "--c-water", "Other equipment": "--c-other", "Not specified": "--c-na" };
+  "Utility power": "--c-power", "Water / chemical": "--c-water", "Pit / drainage": "--c-pit", "Other equipment": "--c-other", "Not specified": "--c-na" };
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const $ = id => document.getElementById(id);
@@ -232,7 +232,7 @@ function render() {
   const evs = w.events.filter(e => state.district === "All" || e.district === state.district);
   $("events").innerHTML = `<thead><tr><th>Day</th><th>Down</th><th>Up</th><th class="n">Duration</th><th>Site</th><th>District</th><th>Reason</th><th>What happened</th><th>WO</th></tr></thead><tbody>` +
     evs.map(e => { const d = ymd(e.start);
-      return `<tr><td class="t">${DOW[d.dow]} ${d.m}/${d.d}</td><td class="t">${hm(e.start)}</td><td class="t">${e.end ? hm(e.end) : "—"}</td>
+      return `<tr><td class="t">${DOW[d.dow]} ${d.m}/${d.d}</td><td class="t">${hm(e.start)}</td><td class="t">${e.end ? hm(e.end) : "—"}${e.overnight ? `<div class="flag" style="color:var(--muted)">next day</div>` : ""}</td>
       <td class="n">${e.minutes == null ? `<span class="flag">${esc(e.flag)}</span>` : dur(e.minutes)}</td>
       <td><strong>${esc(shortSite(e.site))}</strong></td><td>${esc(e.district)}</td>
       <td><span class="chip"><span class="dot" style="background:${color(e.category)}"></span>${esc(e.category)}</span></td>
@@ -246,13 +246,14 @@ function render() {
     if (e.hygiene) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: ${esc(e.hygiene)} after a ${dur(e.minutes)} event (WO #${e.wo}). Close the status in MaintainX.`);
     if (e.flag) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: ${esc(e.flag)}${e.wo ? ` (WO #${e.wo})` : ""}.`);
     if (!e.wo) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: offline ${DOW[ymd(e.start).dow]} ${hm(e.start)}–${e.end ? hm(e.end) : "?"} with no Site Down work order${e.reason ? "" : " and no reason"}.`);
+    if (e.overnight) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: offline ${DOW[ymd(e.start).dow]} ${hm(e.start)} until ${DOW[ymd(e.end).dow]} ${hm(e.end)} (${dur(e.minutes)}), so the total includes closed overnight hours. Confirm the site was still down at open, or set the status back online at close.`);
     if (e.district === "Unassigned") hy.push(`<strong>${esc(shortSite(e.site))}</strong>: not on any district team in MaintainX.`);
   });
   w.stale_offline.forEach(s => { const d = ymd(s.since); hy.push(`<strong>${esc(shortSite(s.site))}</strong>: offline status open since ${d.m}/${d.d} ${hm(s.since)}${s.note ? ` (“${esc(s.note)}”)` : ""}. Close it or confirm the site is still down.`); });
   $("hyg-sec").hidden = !hy.length;
   $("hygiene").innerHTML = hy.map(h => `<li>${h}</li>`).join("");
 
-  $("foot").textContent = "Method: an event is a MaintainX work order in the Site Down category, or an offline status on the site asset. A status and a work order at the same site are joined when they overlap or start within 60 minutes. Down and up times come from the offline status when it is under 24 hours, otherwise from the work order (created to completed). Back-to-back statuses within 5 minutes are merged. Events still open, or logged at 24 hours or more, are listed but left out of hour totals. Times are elapsed clock time in Central time and do not adjust for operating hours or Eastern-time sites.";
+  $("foot").textContent = "Method: an event is a MaintainX work order in the Site Down category, or an offline status on the site asset. A status and a work order at the same site are joined when they overlap or start within 60 minutes. Down and up times come from the offline status when it is under 24 hours, otherwise from the work order (created to completed). Back-to-back statuses within 5 minutes are merged. Events still open, or logged at 24 hours or more, are listed but left out of hour totals. Times are elapsed clock time in Central time and do not adjust for operating hours or Eastern-time sites; events marked ‘next day’ include closed overnight hours.";
 }
 
 function drawTrend() {

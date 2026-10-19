@@ -1,7 +1,8 @@
 """Fill template.html with week data (+ optional read-out) -> a single self-contained page.
 
-Usage: python3 render_html.py data.json insights.json|- out.html [slide.png]
+Usage: python3 render_html.py data.json insights.json|- out.html [slide.png] [slide.pptx name]
 slide.png = the rendered surf-deck slide, shown on the page with a copy button.
+slide.pptx name = file name the .pptx is published under next to the page (linked from the slide).
 """
 import base64, json, os, sys
 
@@ -13,7 +14,8 @@ html = open(os.path.join(here, "template.html")).read()
 slide = None
 if len(sys.argv) > 4:
     png = base64.b64encode(open(sys.argv[4], "rb").read()).decode()
-    slide = {"week_start": data["weeks"][-1]["week_start"], "png": "data:image/png;base64," + png}
+    slide = {"week_start": data["weeks"][-1]["week_start"], "png": "data:image/png;base64," + png,
+             "pptx": sys.argv[5] if len(sys.argv) > 5 else None}
 html = html.replace("/*DATA*/null", safe(data)).replace("/*INSIGHTS*/null", safe(insights))
 html = html.replace("/*SLIDE*/null", safe(slide))
 open(sys.argv[3], "w").write(html)

@@ -83,6 +83,7 @@ a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2
 .slidebox img { width: 100%; max-width: 960px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
 .slide-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .slide-actions button { font: 600 14px var(--body); color: var(--navy-ink); background: var(--navy); border: 0; border-radius: 6px; padding: 9px 16px; cursor: pointer; }
+.pptx-link { font: 600 14px var(--body); color: var(--navy-ink); background: var(--gold); border-radius: 6px; padding: 9px 16px; text-decoration: none; }
 .slide-actions span { color: var(--muted); font-size: 13px; }
 .foot { color: var(--muted); font-size: 12px; margin-top: 30px; max-width: 90ch }
 .mini { height: 8px; background: var(--line); border-radius: 2px; min-width: 60px }
@@ -110,10 +111,10 @@ a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2
 
   <section id="slide-sec" hidden>
     <h2>Surf deck slide</h2>
-    <p class="sub">Copy the slide and paste it into the weekly surf deck. Pasted into PowerPoint it lands as a picture; the editable .pptx comes with the Monday update.</p>
+    <p class="sub">Open the PowerPoint file and copy the slide into the weekly surf deck (charts and text stay editable). The image copy pastes as a picture.</p>
     <div class="slidebox">
       <img id="slide" alt="Site downtime slide for the weekly surf deck">
-      <div class="slide-actions"><button type="button" id="copy-slide">Copy slide image</button><span id="copy-msg" role="status"></span></div>
+      <div class="slide-actions"><a class="pptx-link" id="pptx-link" href="#" target="_blank" rel="noopener" hidden>Open the PowerPoint slide (.pptx)</a><button type="button" id="copy-slide">Copy slide image</button><span id="copy-msg" role="status"></span></div>
     </div>
   </section>
 
@@ -275,6 +276,8 @@ function renderSlide() {
   const show = SLIDE && SLIDE.week_start === DATA.weeks[state.week].week_start;
   $("slide-sec").hidden = !show;
   if (show && $("slide").src !== SLIDE.png) $("slide").src = SLIDE.png;
+  $("pptx-link").hidden = !(show && SLIDE.pptx);
+  if (show && SLIDE.pptx) $("pptx-link").href = SLIDE.pptx;
 }
 $("copy-slide").onclick = async () => {
   const msg = $("copy-msg");

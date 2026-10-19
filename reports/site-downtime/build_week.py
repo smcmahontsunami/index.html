@@ -143,6 +143,7 @@ def fetch(floor):
     for code, d in CORRECTIONS.get("districts", {}).items():  # sites not on a MaintainX district team
         district_of[code] = d
         manager_of.setdefault(d, "")
+    manager_of.update(CORRECTIONS.get("managers", {}))
 
     # Work orders newest first; stop once older than the earliest week.
     cutoff = (floor - timedelta(days=1)).astimezone(timezone.utc).isoformat()

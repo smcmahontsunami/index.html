@@ -1,5 +1,5 @@
 {
- "_note": "Reviewer corrections applied on every run. Key = 'wo:<work order #>' or '<site code>@<start YYYY-MM-DDTHH:MM Central>'. Fields: category, reason, note (shown on the page), minutes (sets the up time to start + minutes). 'added' = events missing from MaintainX: {site, start, minutes, category, reason}. 'districts' = site code -> district for sites missing from MaintainX teams; 'closed_sites' = codes left out of site counts.",
+ "_note": "Reviewer corrections applied on every run. Key = 'wo:<work order #>' or '<site code>@<start YYYY-MM-DDTHH:MM Central>'. Fields: category, reason, note (shown on the page), minutes (sets the up time to start + minutes). 'added' = events missing from MaintainX: {site, start, minutes, category, reason}. 'districts' = site code -> district for sites missing from MaintainX teams; 'closed_sites' = codes left out of site counts. 'managers' = district -> manager name, overriding MaintainX team names.",
  "events": {
   "wo:68163": {
    "category": "IT / controls"
@@ -29,5 +29,9 @@
  },
  "closed_sites": [
   "752"
- ]
+ ],
+ "managers": {
+  "District 7": "Shaun Alexander",
+  "District 11": "Eric Hicks"
+ }
 }

@@ -236,7 +236,7 @@ function render() {
       <td class="n">${e.minutes == null ? `<span class="flag">${esc(e.flag)}</span>` : dur(e.minutes)}${e.elapsed_minutes != null && e.elapsed_minutes !== e.minutes ? `<div class="flag" style="color:var(--muted);font-weight:400">${dur(e.elapsed_minutes)} elapsed</div>` : ""}</td>
       <td><strong>${esc(shortSite(e.site))}</strong></td><td>${esc(e.district)}</td>
       <td><span class="chip"><span class="dot" style="background:${color(e.category)}"></span>${esc(e.category)}</span></td>
-      <td class="what"><div class="ttl">${esc(e.title || "Offline status, no Site Down work order")}</div><div class="rsn">${esc(e.reason || "No reason entered")}</div></td>
+      <td class="what"><div class="ttl">${esc(e.title || "Offline status, no Site Down work order")}</div><div class="rsn">${esc(e.reason || "No reason entered")}</div>${e.note ? `<div class="flag">${esc(e.note)}</div>` : ""}${e.corrected ? `<div class="rsn"><em>Corrected by reviewer</em></div>` : ""}</td>
       <td class="t">${e.wo ? `<a href="https://app.getmaintainx.com/workorders/${e.wo_id}" target="_blank" rel="noopener">#${e.wo}</a>` : "—"}</td></tr>`; }).join("") + `</tbody>`;
   $("filters").querySelectorAll("button").forEach(b => b.onclick = () => { state.district = b.dataset.d;
     try { localStorage.setItem("sd-district", state.district); } catch (e) {} render(); });
@@ -247,6 +247,7 @@ function render() {
     if (e.flag) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: ${esc(e.flag)}${e.wo ? ` (WO #${e.wo})` : ""}.`);
     if (!e.wo) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: offline ${DOW[ymd(e.start).dow]} ${hm(e.start)}–${e.end ? hm(e.end) : "?"} with no Site Down work order${e.reason ? "" : " and no reason"}.`);
     if (e.overnight) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: overnight down time, offline ${DOW[ymd(e.start).dow]} ${hm(e.start)} until ${DOW[ymd(e.end).dow]} ${hm(e.end)}. ${dur(e.elapsed_minutes)} elapsed; ${dur(e.minutes)} fell between 7am and 8pm and counts toward totals. Confirm the site was still down at open, or set the status back online at close.`);
+    if (e.note) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: ${DOW[ymd(e.start).dow]} ${ymd(e.start).m}/${ymd(e.start).d} ${hm(e.start)} event ${esc(e.note.charAt(0).toLowerCase() + e.note.slice(1))}${e.wo ? ` (WO #${e.wo})` : ""}.`);
     if (e.district === "Unassigned") hy.push(`<strong>${esc(shortSite(e.site))}</strong>: not on any district team in MaintainX.`);
   });
   w.stale_offline.forEach(s => { const d = ymd(s.since); hy.push(`<strong>${esc(shortSite(s.site))}</strong>: offline status open since ${d.m}/${d.d} ${hm(s.since)}${s.note ? ` (“${esc(s.note)}”)` : ""}. Close it or confirm the site is still down.`); });

@@ -28,7 +28,7 @@ OPEN_HOUR, CLOSE_HOUR = 7, 20  # only 7am-8pm Central counts toward down-time to
 CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... onsite staff" is equipment
     ("Utility power", r"power is out|power outage|utilit|no power|cutting off power|power company"),
     ("IT / controls", r"connectivity|devices offline|communication|internet|network|control panel|send station"
-                      r"|\bpos\b|\bapp\b|ipad|tablet|kiosk|password|controller"),
+                      r"|\bpos\b|\bapp\b|ipad|tablet|kiosk|password|controller|sonny.?s controls?"),
     ("Conveyor / chain", r"chain|sprocket|conveyor|\btrack\b|\brollers?\b|take.?up"),
     ("Hydraulic", r"hydraulic|power pack|\bhose"),
     ("Water / chemical", r"water|chemical|back ?flow"),
@@ -36,6 +36,10 @@ CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... on
     ("Staffing", r"staff|associate|walk ?off|\blate\b|running late|one person|only one|1 man|nc/ns|no.?show"
                  r"|no call|did ?n.?o?t show|didn.t show|coverage|solo|call(ed|s)? ?off|new hire|opener"),
 ]
+
+# Reviewer corrections (corrections.json next to this script).
+_corr_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "corrections.json")
+CORRECTIONS = json.load(open(_corr_path)) if os.path.exists(_corr_path) else {"events": {}, "added": []}
 
 
 def get(path, tries=6):
@@ -224,11 +228,33 @@ def build(ws, we, raw):
         ev.update(pick_times([(s["start"], s["end"], "status")], "DONE"))
         events.append(ev)
 
+    for a in CORRECTIONS.get("added", []):  # events reported by reviewers but missing in MaintainX
+        start = datetime.fromisoformat(a["start"]).replace(tzinfo=CT)
+        if ws <= start < we:
+            end = start + timedelta(minutes=a["minutes"])
+            events.append({"code": str(a["site"]), "wo": None, "wo_id": None, "title": "Added by reviewer (not in MaintainX)",
+                           "reason": a.get("reason", ""), "start": start, "end": end, "minutes": a["minutes"],
+                           "time_source": "reviewer", "flag": None, "forced_category": a.get("category")})
+
     for ev in events:
+        fix = CORRECTIONS["events"].get(f"wo:{ev['wo']}") or CORRECTIONS["events"].get(
+            f"{ev['code']}@{ev['start'].astimezone(CT).strftime('%Y-%m-%dT%H:%M')}")
+        if fix:
+            if "minutes" in fix:
+                ev.update(end=ev["start"] + timedelta(minutes=fix["minutes"]), minutes=fix["minutes"],
+                          flag=None, time_source="reviewer")
+                ev.pop("logged_end", None)
+            if "reason" in fix:
+                ev["reason"] = fix["reason"]
+            if "note" in fix:
+                ev["note"] = fix["note"]
+            if "category" in fix:
+                ev["forced_category"] = fix["category"]
+            ev["corrected"] = True
         ev["site"] = site_name.get(ev["code"], ev["code"])
         ev["district"] = district_of.get(ev["code"], "Unassigned")
         ev["manager"] = manager_of.get(ev["district"], "")
-        ev["category"] = categorize(ev["title"] + " " + ev["reason"])
+        ev["category"] = ev.pop("forced_category", None) or categorize(ev["title"] + " " + ev["reason"])
         ev["overnight"] = bool(ev["end"] and ev["start"].astimezone(CT).date() != ev["end"].astimezone(CT).date())
         if ev["minutes"] is not None:  # elapsed kept for display; totals use operating hours only
             ev["elapsed_minutes"] = ev["minutes"]

@@ -1,0 +1,20 @@
+{
+ "_note": "Reviewer corrections applied on every run. Key = 'wo:<work order #>' or '<site code>@<start YYYY-MM-DDTHH:MM Central>'. Fields: category, reason, note (shown on the page), minutes (sets the up time to start + minutes). 'added' = events missing from MaintainX: {site, start, minutes, category, reason}.",
+ "events": {
+  "wo:68163": {
+   "category": "IT / controls"
+  },
+  "wo:68329": {
+   "minutes": 15,
+   "note": "Not reported in Teams chat"
+  },
+  "142@2026-10-16T16:58": {
+   "category": "IT / controls",
+   "reason": "Internet outage"
+  },
+  "wo:68517": {
+   "note": "Not reported in Teams chat"
+  }
+ },
+ "added": []
+}

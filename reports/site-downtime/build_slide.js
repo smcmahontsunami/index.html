@@ -65,7 +65,7 @@ const group = key => { const g = {}; W.events.forEach(e => { g[e[key]] ??= { m: 
 const dist = group("district"), cat = group("category");
 const dnames = Object.keys(DATA.managers).sort((a, b) => parseInt(a.split(" ")[1]) - parseInt(b.split(" ")[1]));
 const last = n => (n || "").trim().split(/\s+/).slice(-1)[0];
-const dRows = dnames.map(d => ({ label: `D${d.split(" ")[1]} · ${last(DATA.managers[d])}`, h: +((dist[d]?.m || 0) / 60).toFixed(1) }))
+const dRows = dnames.map(d => ({ label: `D${d.split(" ")[1]}${DATA.managers[d] ? ` · ${last(DATA.managers[d])}` : ""}`, h: +((dist[d]?.m || 0) / 60).toFixed(1) }))
   .sort((a, b) => b.h - a.h);
 const cRows = Object.entries(cat).map(([c, v]) => ({ label: c, h: +(v.m / 60).toFixed(1) })).sort((a, b) => b.h - a.h);
 

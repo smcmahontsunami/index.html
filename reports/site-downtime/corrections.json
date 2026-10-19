@@ -1,5 +1,5 @@
 {
- "_note": "Reviewer corrections applied on every run. Key = 'wo:<work order #>' or '<site code>@<start YYYY-MM-DDTHH:MM Central>'. Fields: category, reason, note (shown on the page), minutes (sets the up time to start + minutes). 'added' = events missing from MaintainX: {site, start, minutes, category, reason}.",
+ "_note": "Reviewer corrections applied on every run. Key = 'wo:<work order #>' or '<site code>@<start YYYY-MM-DDTHH:MM Central>'. Fields: category, reason, note (shown on the page), minutes (sets the up time to start + minutes). 'added' = events missing from MaintainX: {site, start, minutes, category, reason}. 'districts' = site code -> district for sites missing from MaintainX teams; 'closed_sites' = codes left out of site counts.",
  "events": {
   "wo:68163": {
    "category": "IT / controls"
@@ -16,5 +16,18 @@
    "note": "Not reported in Teams chat"
   }
  },
- "added": []
+ "added": [],
+ "districts": {
+  "150": "District 11",
+  "215": "District 12",
+  "219": "District 11",
+  "222": "District 3",
+  "509": "District 11",
+  "510": "District 11",
+  "511": "District 11",
+  "772": "District 11"
+ },
+ "closed_sites": [
+  "752"
+ ]
 }

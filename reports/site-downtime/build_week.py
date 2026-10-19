@@ -138,6 +138,11 @@ def fetch(floor):
         c = site_code(name)
         if c and (c not in site_name or len(name) > len(site_name[c])):
             site_name[c] = name.strip()
+    for code in CORRECTIONS.get("closed_sites", []):
+        site_name.pop(code, None)
+    for code, d in CORRECTIONS.get("districts", {}).items():  # sites not on a MaintainX district team
+        district_of[code] = d
+        manager_of.setdefault(d, "")
 
     # Work orders newest first; stop once older than the earliest week.
     cutoff = (floor - timedelta(days=1)).astimezone(timezone.utc).isoformat()

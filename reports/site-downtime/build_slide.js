@@ -43,7 +43,7 @@ const cmp = (cur, prev, f) => { if (prev == null) return [{ text: "" }]; const d
     : [{ text: `${d < 0 ? "▼" : "▲"} ${f(Math.abs(d))} `, options: { color: d < 0 ? GOOD : BAD, bold: true } },
        { text: `vs prior week (${f(prev)})`, options: { color: MUTED } }]; };
 const kpis = [
-  ["VERIFIED DOWN TIME", dur(mins(W)), avg != null && P
+  ["DOWN TIME, 7AM–8PM", dur(mins(W)), avg != null && P
     ? [...cmp(mins(W), mins(P), dur).slice(0, 1), { text: `vs prior wk · ${hist.length}-wk avg ${Math.round(avg / 60)}h`, options: { color: MUTED } }]
     : cmp(mins(W), P && mins(P), dur)],
   ["SITE-DOWN EVENTS", String(W.events.length), cmp(W.events.length, P && P.events.length, String)],
@@ -97,8 +97,8 @@ s.addText(runs, { x: tx, y: cy + 0.4, w: tw, h: ch - 0.45, fontFace: FONT, fontS
 const pl = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
 const unassigned = dist.Unassigned ? ` ${pl(dist.Unassigned.n, "event")} at sites with no district team ${dist.Unassigned.n === 1 ? "is" : "are"} left off the district chart.` : "";
 const overnight = W.events.filter(e => e.overnight).length;
-const on = overnight ? ` ${pl(overnight, "event")} ran overnight and ${overnight === 1 ? "includes" : "include"} closed hours.` : "";
-s.addText(`Source: MaintainX Site Down work orders and site offline status. Hours count only events with verified down and up times (${pl(open(W), "open event")} excluded).${unassigned}${on} Elapsed clock time, Central.`,
+const on = overnight ? ` ${pl(overnight, "event")} ran overnight; hours outside 7am–8pm are not counted.` : " Hours outside 7am–8pm are not counted.";
+s.addText(`Source: MaintainX Site Down work orders and site offline status. Hours count only events with verified down and up times (${pl(open(W), "open event")} excluded).${unassigned}${on} Central time.`,
   { x: 0.5, y: 6.95, w: 12.3, h: 0.35, fontFace: FONT, fontSize: 9, color: MUTED, margin: 0, valign: "middle", isTextBox: true, objectName: "Source" });
 
 s.addNotes(INS.items.map(t => t.replace(/<[^>]+>/g, "")).join("\n\n"));

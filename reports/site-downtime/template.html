@@ -125,14 +125,14 @@ a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2
     </div>
     <div>
       <h2>Six-week trend</h2>
-      <p class="sub">Verified site-down hours per week, Sunday–Saturday</p>
+      <p class="sub">Site-down hours per week between 7am and 8pm, Sunday–Saturday</p>
       <div class="panel"><svg id="trend" viewBox="0 0 420 220" role="img" aria-label="Site-down hours per week"></svg></div>
     </div>
   </section>
 
   <section>
     <h2>Down time by reason</h2>
-    <p class="sub">Verified hours and event count; reasons classified from the work order and status notes</p>
+    <p class="sub">Hours between 7am and 8pm and event count; reasons classified from the work order and status notes</p>
     <div class="panel"><div class="bars" id="reasons"></div></div>
   </section>
 
@@ -197,7 +197,7 @@ function render() {
   $("title").textContent = `Site downtime · ${range(w)}`;
   $("meta").textContent = `Sunday–Saturday, Central time · Source: MaintainX Site Down work orders and site offline status · Refreshed ${DATA.generated.slice(0, 10)}`;
   $("kpis").innerHTML = [
-    ["Verified down time", dur(a.minutes), delta(a.minutes, p?.minutes, dur)],
+    ["Down time, 7am–8pm", dur(a.minutes), delta(a.minutes, p?.minutes, dur)],
     ["Site-down events", a.events, delta(a.events, p?.events, String)],
     ["Sites affected", `${a.sites}<small style="font-size:18px;color:var(--muted)"> / ${DATA.site_count}</small>`, delta(a.sites, p?.sites, String)],
     ["Open or unverified", a.open, a.open ? "Excluded from hours until closed" : "All events have verified times"],
@@ -233,7 +233,7 @@ function render() {
   $("events").innerHTML = `<thead><tr><th>Day</th><th>Down</th><th>Up</th><th class="n">Duration</th><th>Site</th><th>District</th><th>Reason</th><th>What happened</th><th>WO</th></tr></thead><tbody>` +
     evs.map(e => { const d = ymd(e.start);
       return `<tr><td class="t">${DOW[d.dow]} ${d.m}/${d.d}</td><td class="t">${hm(e.start)}</td><td class="t">${e.end ? hm(e.end) : "—"}${e.overnight ? `<div class="flag" style="color:var(--muted)">next day</div>` : ""}</td>
-      <td class="n">${e.minutes == null ? `<span class="flag">${esc(e.flag)}</span>` : dur(e.minutes)}</td>
+      <td class="n">${e.minutes == null ? `<span class="flag">${esc(e.flag)}</span>` : dur(e.minutes)}${e.elapsed_minutes != null && e.elapsed_minutes !== e.minutes ? `<div class="flag" style="color:var(--muted);font-weight:400">${dur(e.elapsed_minutes)} elapsed</div>` : ""}</td>
       <td><strong>${esc(shortSite(e.site))}</strong></td><td>${esc(e.district)}</td>
       <td><span class="chip"><span class="dot" style="background:${color(e.category)}"></span>${esc(e.category)}</span></td>
       <td class="what"><div class="ttl">${esc(e.title || "Offline status, no Site Down work order")}</div><div class="rsn">${esc(e.reason || "No reason entered")}</div></td>
@@ -246,14 +246,14 @@ function render() {
     if (e.hygiene) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: ${esc(e.hygiene)} after a ${dur(e.minutes)} event (WO #${e.wo}). Close the status in MaintainX.`);
     if (e.flag) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: ${esc(e.flag)}${e.wo ? ` (WO #${e.wo})` : ""}.`);
     if (!e.wo) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: offline ${DOW[ymd(e.start).dow]} ${hm(e.start)}–${e.end ? hm(e.end) : "?"} with no Site Down work order${e.reason ? "" : " and no reason"}.`);
-    if (e.overnight) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: offline ${DOW[ymd(e.start).dow]} ${hm(e.start)} until ${DOW[ymd(e.end).dow]} ${hm(e.end)} (${dur(e.minutes)}), so the total includes closed overnight hours. Confirm the site was still down at open, or set the status back online at close.`);
+    if (e.overnight) hy.push(`<strong>${esc(shortSite(e.site))}</strong>: overnight down time, offline ${DOW[ymd(e.start).dow]} ${hm(e.start)} until ${DOW[ymd(e.end).dow]} ${hm(e.end)}. ${dur(e.elapsed_minutes)} elapsed; ${dur(e.minutes)} fell between 7am and 8pm and counts toward totals. Confirm the site was still down at open, or set the status back online at close.`);
     if (e.district === "Unassigned") hy.push(`<strong>${esc(shortSite(e.site))}</strong>: not on any district team in MaintainX.`);
   });
   w.stale_offline.forEach(s => { const d = ymd(s.since); hy.push(`<strong>${esc(shortSite(s.site))}</strong>: offline status open since ${d.m}/${d.d} ${hm(s.since)}${s.note ? ` (“${esc(s.note)}”)` : ""}. Close it or confirm the site is still down.`); });
   $("hyg-sec").hidden = !hy.length;
   $("hygiene").innerHTML = hy.map(h => `<li>${h}</li>`).join("");
 
-  $("foot").textContent = "Method: an event is a MaintainX work order in the Site Down category, or an offline status on the site asset. A status and a work order at the same site are joined when they overlap or start within 60 minutes. Down and up times come from the offline status when it is under 24 hours, otherwise from the work order (created to completed). Back-to-back statuses within 5 minutes are merged. Events still open, or logged at 24 hours or more, are listed but left out of hour totals. Times are elapsed clock time in Central time and do not adjust for operating hours or Eastern-time sites; events marked ‘next day’ include closed overnight hours.";
+  $("foot").textContent = "Method: an event is a MaintainX work order in the Site Down category, or an offline status on the site asset. A status and a work order at the same site are joined when they overlap or start within 60 minutes. Down and up times come from the offline status when it is under 24 hours, otherwise from the work order (created to completed). Back-to-back statuses within 5 minutes are merged. Events still open, or logged at 24 hours or more, are listed but left out of hour totals. Only time between 7am and 8pm Central counts toward totals; the event log shows elapsed time where it differs. Events marked ‘next day’ ran overnight. Times are Central and are not adjusted for Eastern-time sites.";
 }
 
 function drawTrend() {

@@ -39,4 +39,5 @@ python3 render_html.py data.json insights.json site_downtime.html slide.png   # 
 - Events still open, or logged at 24 hours or more, are listed and flagged but left out of hour totals.
 - Districts come from MaintainX teams named `District N [Manager]`, through each team's locations and assets.
 - Reasons are classified by keyword (`CATEGORIES` in `build_week.py`).
-- Times are elapsed clock time in Central time. They are not adjusted for operating hours or for sites in Eastern time.
+- Only time between 7am and 8pm Central counts toward totals (`OPEN_HOUR`/`CLOSE_HOUR`). Each event keeps `elapsed_minutes` for display, and events that cross midnight are flagged `overnight`.
+- Times are Central. They are not adjusted for sites in Eastern time.

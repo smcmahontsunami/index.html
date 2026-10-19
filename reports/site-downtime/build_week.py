@@ -23,6 +23,7 @@ KEY = os.environ["MAINTAINX_API_KEY"]
 MATCH_WINDOW = timedelta(minutes=60)
 MAX_PLAUSIBLE = timedelta(hours=24)
 MERGE_GAP = timedelta(minutes=5)
+OPEN_HOUR, CLOSE_HOUR = 7, 20  # only 7am-8pm Central counts toward down-time totals
 
 CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... onsite staff" is equipment
     ("Utility power", r"power is out|power outage|utilit|no power|cutting off power|power company"),
@@ -86,6 +87,19 @@ def categorize(text):
         if re.search(pat, t):
             return cat
     return "Not specified" if not t.strip() else "Other equipment"
+
+
+def operating_minutes(start, end):
+    """Minutes of [start, end) that fall inside 7am-8pm Central on each day."""
+    start, end = start.astimezone(CT), end.astimezone(CT)
+    total, day = 0.0, start.replace(hour=0, minute=0, second=0, microsecond=0)
+    while day < end:
+        lo = max(start, day.replace(hour=OPEN_HOUR))
+        hi = min(end, day.replace(hour=CLOSE_HOUR))
+        if hi > lo:
+            total += (hi - lo).total_seconds() / 60
+        day = (day + timedelta(days=1)).replace(hour=0)
+    return round(total)
 
 
 def week_bounds(start=None):
@@ -216,6 +230,9 @@ def build(ws, we, raw):
         ev["manager"] = manager_of.get(ev["district"], "")
         ev["category"] = categorize(ev["title"] + " " + ev["reason"])
         ev["overnight"] = bool(ev["end"] and ev["start"].astimezone(CT).date() != ev["end"].astimezone(CT).date())
+        if ev["minutes"] is not None:  # elapsed kept for display; totals use operating hours only
+            ev["elapsed_minutes"] = ev["minutes"]
+            ev["minutes"] = operating_minutes(ev["start"], ev["end"])
     events.sort(key=lambda e: e["start"])
     for ev in events:
         for k in ("start", "end"):

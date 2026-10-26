@@ -25,12 +25,16 @@ MAX_PLAUSIBLE = timedelta(hours=24)
 MERGE_GAP = timedelta(minutes=5)
 OPEN_HOUR, CLOSE_HOUR = 7, 20  # only 7am-8pm Central counts toward down-time totals
 
+TEST_PAT = r"this is a test|site down\s*-\s*test\b|\btest site\b"  # MaintainX/Teams alert tests, not real events
 CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... onsite staff" is equipment
+    ("External / safety", r"hazard|evacuat|shelter in place|police|tornado|severe weather"),
     ("Utility power", r"power is out|power outage|utilit|no power|cutting off power|power company"),
     ("IT / controls", r"connectivity|devices offline|communication|internet|network|control panel|send station"
                       r"|\bpos\b|\bapp\b|ipad|tablet|kiosk|password|controller|sonny.?s controls?"),
     ("Conveyor / chain", r"chain|sprocket|conveyor|\btrack\b|\brollers?\b|take.?up"),
     ("Hydraulic", r"hydraulic|power pack|\bhose"),
+    ("Air system", r"compressor|air shock|no air|air pressure|air leak"),
+    ("Electrical", r"loud pop|breaker|transformer|electrical|blown fuse|\bvfd\b"),
     ("Water / chemical", r"water|chemical|back ?flow"),
     ("Pit / drainage", r"\bpit\b|sump|drain"),
     ("Staffing", r"staff|associate|walk ?off|\blate\b|running late|one person|only one|1 man|nc/ns|no.?show"
@@ -265,6 +269,8 @@ def build(ws, we, raw):
         if ev["minutes"] is not None:  # elapsed kept for display; totals use operating hours only
             ev["elapsed_minutes"] = ev["minutes"]
             ev["minutes"] = operating_minutes(ev["start"], ev["end"])
+    events = [e for e in events
+              if not re.search(TEST_PAT, f"{e['title']} {e['reason']} {e['site']}", re.I) and e["code"] is not None]
     events.sort(key=lambda e: e["start"])
     for ev in events:
         for k in ("start", "end"):

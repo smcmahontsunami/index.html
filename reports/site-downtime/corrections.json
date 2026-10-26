@@ -19,7 +19,16 @@
    "category": "Electrical"
   }
  },
- "added": [],
+ "added": [
+  {
+   "site": "634",
+   "start": "2026-10-23T13:00",
+   "minutes": 1314,
+   "category": "Tunnel equipment",
+   "reason": "Wrap fell down and the team did not switch on the wrap override",
+   "note": "Not recorded in MaintainX"
+  }
+ ],
  "districts": {
   "150": "District 11",
   "215": "District 12",

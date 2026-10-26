@@ -34,6 +34,7 @@ CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... on
     ("Conveyor / chain", r"chain|sprocket|conveyor|\btrack\b|\brollers?\b|take.?up"),
     ("Hydraulic", r"hydraulic|power pack|\bhose"),
     ("Air system", r"compressor|air shock|no air|air pressure|air leak"),
+    ("Tunnel equipment", r"\bwraps?\b|top brush|mitter|tire shine|blower|omni"),
     ("Electrical", r"loud pop|breaker|transformer|electrical|blown fuse|\bvfd\b"),
     ("Water / chemical", r"water|chemical|back ?flow"),
     ("Pit / drainage", r"\bpit\b|sump|drain"),
@@ -244,7 +245,8 @@ def build(ws, we, raw):
             end = start + timedelta(minutes=a["minutes"])
             events.append({"code": str(a["site"]), "wo": None, "wo_id": None, "title": "Added by reviewer (not in MaintainX)",
                            "reason": a.get("reason", ""), "start": start, "end": end, "minutes": a["minutes"],
-                           "time_source": "reviewer", "flag": None, "forced_category": a.get("category")})
+                           "time_source": "reviewer", "flag": None, "forced_category": a.get("category"),
+                           "note": a.get("note"), "corrected": True})
 
     for ev in events:
         fix = CORRECTIONS["events"].get(f"wo:{ev['wo']}") or CORRECTIONS["events"].get(

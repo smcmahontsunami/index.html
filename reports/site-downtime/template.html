@@ -8,7 +8,7 @@
   --bg: #f6f8fb; --surface: #ffffff; --ink: #0d2240; --muted: #56647a; --line: #dfe5ee;
   --navy: #0f2c55; --navy-ink: #ffffff; --navy-muted: #b9c8de; --gold: #c99a2e; --gold-soft: #f4e6c2;
   --bar: #9fb0c8; --good: #2f7d4f; --bad: #b23b2e;
-  --c-it: #3d6fb6; --c-conv: #c99a2e; --c-hyd: #7a5aa6; --c-staff: #c1592f; --c-power: #2f8a8a; --c-water: #4f8f3c; --c-pit: #6b7f3a; --c-ext: #9b3a5a; --c-elec: #b8862b; --c-air: #4d8fa6; --c-other: #8a8f99; --c-na: #b7bdc7;
+  --c-it: #3d6fb6; --c-conv: #c99a2e; --c-hyd: #7a5aa6; --c-staff: #c1592f; --c-power: #2f8a8a; --c-water: #4f8f3c; --c-pit: #6b7f3a; --c-ext: #9b3a5a; --c-elec: #b8862b; --c-air: #4d8fa6; --c-tun: #a0522d; --c-other: #8a8f99; --c-na: #b7bdc7;
   --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
   --body: "Barlow", "Segoe UI", Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
@@ -17,13 +17,13 @@
   --bg: #0b1424; --surface: #121e33; --ink: #e6edf7; --muted: #9aa8bd; --line: #24324a;
   --navy: #0a1a33; --navy-ink: #f1f5fb; --navy-muted: #8fa3c2; --gold: #e0b04a; --gold-soft: #3a2f16;
   --bar: #4a5d7c; --good: #5cb47f; --bad: #e07766;
-  --c-it: #6f9be0; --c-conv: #e0b04a; --c-hyd: #a98bd6; --c-staff: #e88a5f; --c-power: #5cbcbc; --c-water: #7cbf68; --c-pit: #a8bd6e; --c-ext: #d77a99; --c-elec: #e0b867; --c-air: #7cc0d6; --c-other: #a3a9b4; --c-na: #6c7585;
+  --c-it: #6f9be0; --c-conv: #e0b04a; --c-hyd: #a98bd6; --c-staff: #e88a5f; --c-power: #5cbcbc; --c-water: #7cbf68; --c-pit: #a8bd6e; --c-ext: #d77a99; --c-elec: #e0b867; --c-air: #7cc0d6; --c-tun: #d98b62; --c-other: #a3a9b4; --c-na: #6c7585;
   color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0b1424; --surface: #121e33; --ink: #e6edf7; --muted: #9aa8bd; --line: #24324a;
   --navy: #0a1a33; --navy-ink: #f1f5fb; --navy-muted: #8fa3c2; --gold: #e0b04a; --gold-soft: #3a2f16;
   --bar: #4a5d7c; --good: #5cb47f; --bad: #e07766;
-  --c-it: #6f9be0; --c-conv: #e0b04a; --c-hyd: #a98bd6; --c-staff: #e88a5f; --c-power: #5cbcbc; --c-water: #7cbf68; --c-pit: #a8bd6e; --c-ext: #d77a99; --c-elec: #e0b867; --c-air: #7cc0d6; --c-other: #a3a9b4; --c-na: #6c7585;
+  --c-it: #6f9be0; --c-conv: #e0b04a; --c-hyd: #a98bd6; --c-staff: #e88a5f; --c-power: #5cbcbc; --c-water: #7cbf68; --c-pit: #a8bd6e; --c-ext: #d77a99; --c-elec: #e0b867; --c-air: #7cc0d6; --c-tun: #d98b62; --c-other: #a3a9b4; --c-na: #6c7585;
   color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); }
@@ -164,7 +164,7 @@ const DATA = /*DATA*/null;
 const INSIGHTS = /*INSIGHTS*/null;
 const SLIDE = /*SLIDE*/null; // {week_start, png: data URI}
 const CAT = { "IT / controls": "--c-it", "Conveyor / chain": "--c-conv", "Hydraulic": "--c-hyd", "Staffing": "--c-staff",
-  "Utility power": "--c-power", "Water / chemical": "--c-water", "Pit / drainage": "--c-pit", "External / safety": "--c-ext", "Electrical": "--c-elec", "Air system": "--c-air", "Other equipment": "--c-other", "Not specified": "--c-na" };
+  "Utility power": "--c-power", "Water / chemical": "--c-water", "Pit / drainage": "--c-pit", "External / safety": "--c-ext", "Electrical": "--c-elec", "Air system": "--c-air", "Tunnel equipment": "--c-tun", "Other equipment": "--c-other", "Not specified": "--c-na" };
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const $ = id => document.getElementById(id);

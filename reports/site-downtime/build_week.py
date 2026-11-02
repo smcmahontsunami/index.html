@@ -30,8 +30,9 @@ CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... on
     ("External / safety", r"hazard|evacuat|shelter in place|police|tornado|severe weather"),
     ("Utility power", r"power is out|power outage|utilit|no power|cutting off power|power company"),
     ("IT / controls", r"connectivity|devices offline|communication|internet|network|control panel|send station"
-                      r"|\bpos\b|\bapp\b|ipad|tablet|kiosk|password|controller|sonny.?s controls?"),
-    ("Conveyor / chain", r"chain|sprocket|conveyor|\btrack\b|\brollers?\b|take.?up"),
+                      r"|\bpos\b|\bapp\b|ipad|tablet|kiosk|password|controller|sonny.?s controls?"
+                      r"|\btcs\b|tunnel watch|photo ?eyes?|enter switch|logic card"),
+    ("Conveyor / chain", r"chain|sprocket|conveyor|\btrack\b|\brollers?\b|take.?up|kick.?up|roller.?up"),
     ("Hydraulic", r"hydraulic|power pack|\bhose"),
     ("Air system", r"compressor|air shock|no air|air pressure|air leak"),
     ("Tunnel equipment", r"\bwraps?\b|top brush|mitter|tire shine|blower|omni"),

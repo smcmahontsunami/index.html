@@ -1,5 +1,5 @@
 {
- "_note": "Reviewer corrections applied on every run. Key = 'wo:<work order #>' or '<site code>@<start YYYY-MM-DDTHH:MM Central>'. Fields: category, reason, note (shown on the page), minutes (sets the up time to start + minutes). 'added' = events missing from MaintainX: {site, start, minutes, category, reason}. 'districts' = site code -> district for sites missing from MaintainX teams; 'closed_sites' = codes left out of site counts. 'managers' = district -> manager name, overriding MaintainX team names.",
+ "_note": "Reviewer corrections applied on every run. Key = 'wo:<work order #>' or '<site code>@<start YYYY-MM-DDTHH:MM Central>'. Fields: category, reason, note (shown on the page), minutes (sets the up time to start + minutes). 'added' = events missing from MaintainX: {site, start, minutes, category, reason}. 'districts' = site code -> district for sites missing from MaintainX teams; 'closed_sites' = codes left out of site counts. 'managers' = district -> manager name, overriding MaintainX team names. A fix may also set 'start' (YYYY-MM-DDTHH:MM Central) together with 'minutes' to move an event.",
  "events": {
   "wo:68163": {
    "category": "IT / controls"
@@ -17,6 +17,31 @@
   },
   "wo:69126": {
    "category": "Electrical"
+  },
+  "wo:70183": {
+   "start": "2026-10-26T16:15",
+   "minutes": 135
+  },
+  "212@2026-10-26T08:47": {
+   "category": "Conveyor / chain",
+   "reason": "Metal piece stuck under sprocket"
+  },
+  "529@2026-10-27T12:36": {
+   "category": "Utility power",
+   "reason": "Utilities"
+  },
+  "537@2026-10-29T08:04": {
+   "category": "Conveyor / chain",
+   "reason": "Modbus for conveyor VFD"
+  },
+  "244@2026-10-30T12:36": {
+   "start": "2026-10-30T13:37",
+   "minutes": 23
+  },
+  "218@2026-10-31T15:07": {
+   "category": "Conveyor / chain",
+   "reason": "Conveyor",
+   "note": "Issue was no updates or requests for assistance"
   }
  },
  "added": [
@@ -37,10 +62,12 @@
   "509": "District 11",
   "510": "District 11",
   "511": "District 11",
-  "772": "District 11"
+  "772": "District 11",
+  "218": "District 12"
  },
  "closed_sites": [
-  "752"
+  "752",
+  "756"
  ],
  "managers": {
   "District 7": "Shaun Alexander",

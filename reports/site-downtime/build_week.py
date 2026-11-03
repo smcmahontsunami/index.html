@@ -149,6 +149,8 @@ def fetch(floor):
     for code, d in CORRECTIONS.get("districts", {}).items():  # sites not on a MaintainX district team
         district_of[code] = d
         manager_of.setdefault(d, "")
+    for code in CORRECTIONS.get("closed_sites", []):
+        district_of.pop(code, None)
     manager_of.update(CORRECTIONS.get("managers", {}))
 
     # Work orders newest first; stop once older than the earliest week.
@@ -253,6 +255,8 @@ def build(ws, we, raw):
         fix = CORRECTIONS["events"].get(f"wo:{ev['wo']}") or CORRECTIONS["events"].get(
             f"{ev['code']}@{ev['start'].astimezone(CT).strftime('%Y-%m-%dT%H:%M')}")
         if fix:
+            if "start" in fix:
+                ev["start"] = datetime.fromisoformat(fix["start"]).replace(tzinfo=CT)
             if "minutes" in fix:
                 ev.update(end=ev["start"] + timedelta(minutes=fix["minutes"]), minutes=fix["minutes"],
                           flag=None, time_source="reviewer")
@@ -272,8 +276,9 @@ def build(ws, we, raw):
         if ev["minutes"] is not None:  # elapsed kept for display; totals use operating hours only
             ev["elapsed_minutes"] = ev["minutes"]
             ev["minutes"] = operating_minutes(ev["start"], ev["end"])
+    closed = set(CORRECTIONS.get("closed_sites", []))
     events = [e for e in events
-              if not re.search(TEST_PAT, f"{e['title']} {e['reason']} {e['site']}", re.I) and e["code"] is not None]
+              if e["code"] not in closed and not re.search(TEST_PAT, f"{e['title']} {e['reason']} {e['site']}", re.I) and e["code"] is not None]
     events.sort(key=lambda e: e["start"])
     for ev in events:
         for k in ("start", "end"):

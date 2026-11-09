@@ -37,10 +37,11 @@ CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... on
     ("Air system", r"compressor|air shock|no air|air pressure|air leak"),
     ("Tunnel equipment", r"\bwraps?\b|top brush|mitter|tire shine|blower|omni"),
     ("Electrical", r"loud pop|breaker|transformer|electrical|blown fuse|\bvfd\b"),
-    ("Water / chemical", r"water|chemical|back ?flow"),
+    ("Water / chemical", r"water|chemical|back ?flow|\bncs\b|change ?over"),
     ("Pit / drainage", r"\bpit\b|sump|drain"),
     ("Staffing", r"staff|associate|walk ?off|\blate\b|running late|one person|only one|1 man|nc/ns|no.?show"
-                 r"|no call|did ?n.?o?t show|didn.t show|coverage|solo|call(ed|s)? ?off|new hire|opener"),
+                 r"|no call|did ?n.?o?t show|didn.t show|coverage|solo|call(ed|s)? ?off|new hire|opener"
+                 r"|attendance|not shown up|has not shown"),
 ]
 
 # Reviewer corrections (corrections.json next to this script).

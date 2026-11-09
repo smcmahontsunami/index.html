@@ -16,6 +16,7 @@ python3 build_week.py "" 6 data.json   # "" = last completed week; 6 weeks of hi
 # write insights.json for the latest week (format below)
 npm install pptxgenjs@3.12.0            # once
 node build_slide.js data.json insights.json Site_Downtime_<week>.pptx
+zip -dq Site_Downtime_<week>.pptx '*/'   # drop folder entries so it opens from SharePoint/OneDrive
 soffice --headless --convert-to pdf Site_Downtime_<week>.pptx
 pdftoppm -png -r 144 -singlefile Site_Downtime_<week>.pdf slide
 python3 render_html.py data.json insights.json site_downtime.html slide.png   # slide image + copy button on the page

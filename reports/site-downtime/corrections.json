@@ -42,6 +42,10 @@
    "category": "Conveyor / chain",
    "reason": "Conveyor",
    "note": "Issue was no updates or requests for assistance"
+  },
+  "537@2026-11-02T06:00": {
+   "category": "Water / chemical",
+   "reason": "NCS chemical changeover"
   }
  },
  "added": [

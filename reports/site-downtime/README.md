@@ -38,7 +38,7 @@ python3 render_html.py data.json insights.json site_downtime.html slide.png   # 
 - Down and up times come from the status when it lasts between 1 minute and 24 hours. Otherwise they come from the work order: `startDate` when it was logged after the fact, else created to completed.
 - Statuses less than 5 minutes apart are merged.
 - Events still open, or logged at 24 hours or more, are listed and flagged but left out of hour totals.
-- Districts come from MaintainX teams named `District N [Manager]`, through each team's locations and assets.
+- Districts come from Snowflake `PROD_DATA_WAREHOUSE.S03_SIGMA.DIM_LOCATION` (`LOCATION_DISTRICT`, open sites only), copied into `corrections.json` → `districts` each week; sites with a past `CLOSE_DATE` go in `closed_sites`. MaintainX teams named `District N [Manager]` are the fallback for any site Snowflake doesn't list. District manager names come from MaintainX team names, overridden by `corrections.json` → `managers`.
 - Reasons are classified by keyword (`CATEGORIES` in `build_week.py`).
 - Reviewer corrections from page comments go in `corrections.json` and are applied on every run: a reason, a duration, or a note per event (by work order number, or by site and start time for offline statuses with no work order), plus events missing from MaintainX.
 - Only time between 7am and 8pm Central counts toward totals (`OPEN_HOUR`/`CLOSE_HOUR`). Each event keeps `elapsed_minutes` for display, and events that cross midnight are flagged `overnight`.

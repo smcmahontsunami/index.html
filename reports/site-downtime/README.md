@@ -37,6 +37,7 @@ python3 render_html.py data.json insights.json site_downtime.html slide.png   # 
 - A status and a work order at the same site are joined when they overlap or start within 60 minutes of each other (or of the work order's completion).
 - Down and up times come from the status when it lasts between 1 minute and 24 hours. Otherwise they come from the work order: `startDate` when it was logged after the fact, else created to completed.
 - Statuses less than 5 minutes apart are merged.
+- Events at the same site that overlap in time (an offline status plus duplicate work orders for one outage) are merged into one event.
 - Events still open, or logged at 24 hours or more, are listed and flagged but left out of hour totals.
 - Districts come from Snowflake `PROD_DATA_WAREHOUSE.S03_SIGMA.DIM_LOCATION` (`LOCATION_DISTRICT`, open sites only), copied into `corrections.json` → `districts` each week; sites with a past `CLOSE_DATE` go in `closed_sites`. MaintainX teams named `District N [Manager]` are the fallback for any site Snowflake doesn't list. District manager names come from MaintainX team names, overridden by `corrections.json` → `managers`.
 - Reasons are classified by keyword (`CATEGORIES` in `build_week.py`).

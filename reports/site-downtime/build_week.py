@@ -31,7 +31,7 @@ CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... on
     ("Utility power", r"power is out|power outage|utilit|no power|cutting off power|power company"),
     ("IT / controls", r"connectivity|devices offline|communication|internet|network|control panel|send station"
                       r"|\bpos\b|\bapp\b|ipad|tablet|kiosk|password|controller|sonny.?s controls?"
-                      r"|\btcs\b|tunnel watch|photo ?eyes?|enter switch|logic card"),
+                      r"|\btcs\b|tunnel watch|photo ?eyes?|enter switch|logic card|tunnel master|plate reader|\bamp\b"),
     ("Conveyor / chain", r"chain|sprocket|conveyor|\btrack\b|\brollers?\b|take.?up|kick.?up|roller.?up"),
     ("Hydraulic", r"hydraulic|power pack|\bhose"),
     ("Air system", r"compressor|air shock|no air|air pressure|air leak"),
@@ -39,9 +39,10 @@ CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... on
     ("Electrical", r"loud pop|breaker|transformer|electrical|blown fuse|\bvfd\b"),
     ("Water / chemical", r"water|chemical|back ?flow|\bncs\b|change ?over"),
     ("Pit / drainage", r"\bpit\b|sump|drain"),
+    ("Doors / property", r"parking lot|lot repair|air ?lift door|overhead door|\bdoors?\b|\broof\b"),
     ("Staffing", r"staff|associate|walk ?off|\blate\b|running late|one person|only one|1 man|nc/ns|no.?show"
                  r"|no call|did ?n.?o?t show|didn.t show|coverage|solo|call(ed|s)? ?off|new hire|opener"
-                 r"|attendance|not shown up|has not shown"),
+                 r"|attendance|not shown up|has not shown|one employee|1 person|single associate"),
 ]
 
 # Reviewer corrections (corrections.json next to this script).
@@ -251,6 +252,21 @@ def build(ws, we, raw):
                            "reason": a.get("reason", ""), "start": start, "end": end, "minutes": a["minutes"],
                            "time_source": "reviewer", "flag": None, "forced_category": a.get("category"),
                            "note": a.get("note"), "corrected": True})
+
+    # One outage logged several times (offline status plus duplicate work orders) -> one event.
+    events.sort(key=lambda e: (e["code"] or "", e["start"]))
+    kept = []
+    for ev in events:
+        prev = kept[-1] if kept and kept[-1]["code"] == ev["code"] else None
+        if prev and prev.get("end") and ev["start"] < prev["end"]:
+            if ev.get("end") and ev["end"] > prev["end"]:
+                prev["end"] = ev["end"]
+                prev["minutes"] = round((prev["end"] - prev["start"]).total_seconds() / 60)
+            prev["merged_wos"] = prev.get("merged_wos", []) + [ev["wo"]]
+            prev["reason"] = prev["reason"] or ev["reason"]
+            continue
+        kept.append(ev)
+    events = kept
 
     for ev in events:
         fix = CORRECTIONS["events"].get(f"wo:{ev['wo']}") or CORRECTIONS["events"].get(

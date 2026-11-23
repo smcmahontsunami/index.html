@@ -33,7 +33,7 @@ python3 render_html.py data.json insights.json site_downtime.html slide.png   # 
 
 ## Method
 
-- An event is a work order in the **Site Down** category, or an **OFFLINE** status on a site-level asset.
+- An event is a work order in the **Site Down** category, or an **OFFLINE** status on a site-level asset. Recurring checklists whose template carries the Site Down category ("Wash Close", "Wash Ready", "Tunnel Walk"; `CHECKLIST_PAT`) and test work orders (`TEST_PAT`) are left out.
 - A status and a work order at the same site are joined when they overlap or start within 60 minutes of each other (or of the work order's completion).
 - Down and up times come from the status when it lasts between 1 minute and 24 hours. Otherwise they come from the work order: `startDate` when it was logged after the fact, else created to completed.
 - Statuses less than 5 minutes apart are merged.

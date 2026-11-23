@@ -25,11 +25,13 @@ MAX_PLAUSIBLE = timedelta(hours=24)
 MERGE_GAP = timedelta(minutes=5)
 OPEN_HOUR, CLOSE_HOUR = 7, 20  # only 7am-8pm Central counts toward down-time totals
 
-TEST_PAT = r"this is a test|site down\s*-\s*test\b|\btest site\b"  # MaintainX/Teams alert tests, not real events
+TEST_PAT = r"this is a test|site down\s*-\s*test\b|\btest site\b|\btest test\b"  # MaintainX/Teams alert tests, not real events
+# Recurring checklists that carry the Site Down category on their template (each closes as the next opens).
+CHECKLIST_PAT = r"wash close|wash ready|tunnel walk"
 CATEGORIES = [  # first match wins; equipment before staffing so "rollers ... onsite staff" is equipment
     ("External / safety", r"hazard|evacuat|shelter in place|police|tornado|severe weather"),
     ("Utility power", r"power is out|power outage|utilit|no power|cutting off power|power company"),
-    ("IT / controls", r"connectivity|devices offline|communication|internet|network|control panel|send station"
+    ("IT / controls", r"connectivity|devices offline|(?<!mis)communicat|internet|network|control panel|send station"
                       r"|\bpos\b|\bapp\b|ipad|tablet|kiosk|password|controller|sonny.?s controls?"
                       r"|\btcs\b|tunnel watch|photo ?eyes?|enter switch|logic card|tunnel master|plate reader|\bamp\b"),
     ("Conveyor / chain", r"chain|sprocket|conveyor|\btrack\b|\brollers?\b|take.?up|kick.?up|roller.?up"),
@@ -168,6 +170,7 @@ def build(ws, we, raw):
     assets, site_name, statuses = raw["assets"], raw["site_name"], raw["statuses"]
     district_of, manager_of = raw["district_of"], raw["manager_of"]
     down_wos = [w for w in raw["wos"] if "Site Down" in (w.get("categories") or [])
+                and not re.search(CHECKLIST_PAT, w["title"], re.I)
                 and ws <= ts(w["createdAt"]) < we]
 
     # OFFLINE statuses on site-level assets, merged when back-to-back.

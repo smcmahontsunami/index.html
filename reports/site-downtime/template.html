@@ -147,7 +147,7 @@ a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2
 
   <section>
     <h2>District and company totals</h2>
-    <p class="sub">Districts from MaintainX teams; sites with no district team listed as Unassigned</p>
+    <p class="sub">Districts from Snowflake site list. "YTD avg / week" is each district's average weekly down time this year before the selected week; ▼ means better than its average.</p>
     <div class="tablebox"><table id="districts"></table></div>
   </section>
 
@@ -209,12 +209,30 @@ function delta(cur, prev, fmt) {
   return `<span class="${d < 0 ? "down" : "up"}">${d < 0 ? "▼" : "▲"} ${fmt(Math.abs(d))}</span> vs prior week (${fmt(prev)})`;
 }
 
+// Weekly average this year, from Jan 1 up to the week before the selected one (null without history).
+function ytdAvg(weekStart, district) {
+  const H = DATA.history; if (!H) return null;
+  const i = H.weeks.indexOf(weekStart); if (i < 1) return null;
+  const src = district ? [H.minutes[district] || []] : Object.values(H.minutes);
+  return src.reduce((s, arr) => s + arr.slice(0, i).reduce((t, v) => t + (v || 0), 0), 0) / i;
+}
+function vsAvg(cur, avg) {
+  if (avg == null) return "";
+  const d = Math.round(cur - avg);
+  return `<span class="${d < 0 ? "down" : d > 0 ? "up" : ""}">${d === 0 ? "at" : (d < 0 ? "▼ " : "▲ ") + dur(Math.abs(d))}</span>${d === 0 ? "" : d < 0 ? " below" : " above"} YTD avg (${dur(Math.round(avg))})`;
+}
+function avgCells(cur, avg) {
+  if (avg == null) return "";
+  const d = Math.round(cur - avg);
+  return `<td class="n">${dur(Math.round(avg))}</td><td class="n"><span class="${d < 0 ? "down" : d > 0 ? "up" : ""}">${d === 0 ? "—" : (d < 0 ? "▼ " : "▲ ") + dur(Math.abs(d))}</span></td>`;
+}
 function render() {
   const w = DATA.weeks[state.week], a = agg(w), p = state.week > 0 ? agg(DATA.weeks[state.week - 1]) : null;
+  const coAvg = ytdAvg(w.week_start);
   $("title").textContent = `Site downtime · ${range(w)}`;
   $("meta").textContent = `Sunday–Saturday, Central time · Source: MaintainX Site Down work orders and site offline status · Refreshed ${DATA.generated.slice(0, 10)}`;
   $("kpis").innerHTML = [
-    ["Down time, 7am–8pm", dur(a.minutes), delta(a.minutes, p?.minutes, dur)],
+    ["Down time, 7am–8pm", dur(a.minutes), delta(a.minutes, p?.minutes, dur) + (coAvg != null ? `<br>${vsAvg(a.minutes, coAvg)}` : "")],
     ["Site-down events", a.events, delta(a.events, p?.events, String)],
     ["Sites affected", `${a.sites}<small style="font-size:18px;color:var(--muted)"> / ${DATA.site_count}</small>`, delta(a.sites, p?.sites, String)],
     ["Open or unverified", a.open, a.open ? "Excluded from hours until closed" : "All events have verified times"],
@@ -239,9 +257,9 @@ function render() {
     return `<tr><td><strong>${esc(d)}</strong></td><td>${esc(DATA.managers[d] || "—")}</td><td class="n">${DATA.district_sites[d] ?? "—"}</td>
       <td class="n">${v.events}${v.open ? ` <span class="flag">(${v.open} open)</span>` : ""}</td><td class="n">${v.sites.size}</td>
       <td class="n">${dur(v.minutes)}</td><td><div class="mini"><div style="width:${v.minutes / dmax * 100}%"></div></div></td>
-      <td class="n">${a.minutes ? Math.round(v.minutes / a.minutes * 100) + "%" : "—"}</td></tr>`; }).join("");
-  $("districts").innerHTML = `<thead><tr><th>District</th><th>District manager</th><th class="n">Sites</th><th class="n">Events</th><th class="n">Sites down</th><th class="n">Down time</th><th></th><th class="n">Share</th></tr></thead>
-    <tbody>${rows}</tbody><tfoot><tr><td>Company</td><td></td><td class="n">${DATA.site_count}</td><td class="n">${a.events}${a.open ? ` <span class="flag">(${a.open} open)</span>` : ""}</td><td class="n">${a.sites}</td><td class="n">${dur(a.minutes)}</td><td></td><td class="n">100%</td></tr></tfoot>`;
+      <td class="n">${a.minutes ? Math.round(v.minutes / a.minutes * 100) + "%" : "—"}</td>${avgCells(v.minutes, ytdAvg(w.week_start, d))}</tr>`; }).join("");
+  $("districts").innerHTML = `<thead><tr><th>District</th><th>District manager</th><th class="n">Sites</th><th class="n">Events</th><th class="n">Sites down</th><th class="n">Down time</th><th></th><th class="n">Share</th>${coAvg != null ? `<th class="n">YTD avg / week</th><th class="n">vs avg</th>` : ""}</tr></thead>
+    <tbody>${rows}</tbody><tfoot><tr><td>Company</td><td></td><td class="n">${DATA.site_count}</td><td class="n">${a.events}${a.open ? ` <span class="flag">(${a.open} open)</span>` : ""}</td><td class="n">${a.sites}</td><td class="n">${dur(a.minutes)}</td><td></td><td class="n">100%</td>${avgCells(a.minutes, coAvg)}</tr></tfoot>`;
 
   const opts = ["All", ...dnames.filter(d => a.dist[d])];
   if (!opts.includes(state.district)) state.district = "All";

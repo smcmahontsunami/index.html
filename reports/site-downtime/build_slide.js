@@ -22,8 +22,13 @@ const range = w => { const [y, m, d] = ymd(w.week_start), [, m2, d2] = ymd(w.wee
   return m === m2 ? `${MON[m - 1]} ${d}–${d2}, ${y}` : `${MON[m - 1]} ${d} – ${MON[m2 - 1]} ${d2}, ${y}`; };
 const sites = w => new Set(w.events.map(e => e.code)).size;
 const open = w => w.events.filter(e => e.minutes == null).length;
+// Baseline: weekly average this year before this week (from the YTD history), else the prior weeks on the page.
+const H = DATA.history, hi = H ? H.weeks.indexOf(W.week_start) : -1;
+const ytdAvg = d => hi < 1 ? null
+  : (d ? [H.minutes[d] || []] : Object.values(H.minutes)).reduce((s, a) => s + a.slice(0, hi).reduce((t, v) => t + (v || 0), 0), 0) / hi;
 const hist = DATA.weeks.slice(0, -1).map(mins);
-const avg = hist.length ? hist.reduce((a, b) => a + b, 0) / hist.length : null;
+const avg = ytdAvg() ?? (hist.length ? hist.reduce((a, b) => a + b, 0) / hist.length : null);
+const avgLabel = ytdAvg() != null ? "YTD avg" : `${hist.length}-wk avg`;
 
 const pres = new pptxgen();
 pres.layout = "LAYOUT_WIDE"; // 13.33 x 7.5 in
@@ -44,7 +49,9 @@ const cmp = (cur, prev, f) => { if (prev == null) return [{ text: "" }]; const d
        { text: `vs prior week (${f(prev)})`, options: { color: MUTED } }]; };
 const kpis = [
   ["DOWN TIME, 7AM–8PM", dur(mins(W)), avg != null && P
-    ? [...cmp(mins(W), mins(P), dur).slice(0, 1), { text: `vs prior wk · ${hist.length}-wk avg ${Math.round(avg / 60)}h`, options: { color: MUTED } }]
+    ? [...cmp(mins(W), mins(P), dur).slice(0, 1), { text: `vs prior week (${dur(mins(P))})`, options: { color: MUTED, breakLine: true } },
+       { text: `${mins(W) <= avg ? "▼" : "▲"} ${dur(Math.round(Math.abs(mins(W) - avg)))}`, options: { color: mins(W) <= avg ? GOOD : BAD, bold: true } },
+       { text: ` vs ${avgLabel} (${dur(Math.round(avg))}/wk)`, options: { color: MUTED } }]
     : cmp(mins(W), P && mins(P), dur)],
   ["SITE-DOWN EVENTS", String(W.events.length), cmp(W.events.length, P && P.events.length, String)],
   ["SITES AFFECTED", `${sites(W)} of ${DATA.site_count}`, cmp(sites(W), P && sites(P), String)],
@@ -56,8 +63,9 @@ kpis.forEach(([lab, val, sub], i) => {
   s.addShape(pres.shapes.RECTANGLE, { x, y: ky, w: kw, h: kh, fill: { color: TINT }, line: { color: LINE, width: 0.75 }, objectName: `KPI ${i + 1}` });
   s.addText(lab, { x: x + 0.18, y: ky + 0.1, w: kw - 0.3, h: 0.22, fontFace: FONT, fontSize: 10, bold: true, color: MUTED, charSpacing: 1, margin: 0, isTextBox: true });
   s.addText(val, { x: x + 0.18, y: ky + 0.32, w: kw - 0.3, h: 0.45, fontFace: FONT, fontSize: 26, bold: true, color: INK, margin: 0, valign: "middle", isTextBox: true });
-  s.addText(sub.map(r => ({ text: r.text, options: { fontFace: FONT, fontSize: 10, ...(r.options || {}) } })),
-    { x: x + 0.18, y: ky + 0.78, w: kw - 0.3, h: 0.22, margin: 0, isTextBox: true });
+  const two = sub.some(r => r.options && r.options.breakLine);
+  s.addText(sub.map(r => ({ text: r.text, options: { fontFace: FONT, fontSize: two ? 9 : 10, ...(r.options || {}) } })),
+    { x: x + 0.18, y: ky + (two ? 0.72 : 0.78), w: kw - 0.3, h: two ? 0.3 : 0.22, margin: 0, valign: "top", isTextBox: true });
 });
 
 // Hours by district and by reason: native bar charts.
@@ -65,8 +73,10 @@ const group = key => { const g = {}; W.events.forEach(e => { g[e[key]] ??= { m: 
 const dist = group("district"), cat = group("category");
 const dnames = Object.keys(DATA.managers).sort((a, b) => parseInt(a.split(" ")[1]) - parseInt(b.split(" ")[1]));
 const last = n => (n || "").trim().split(/\s+/).slice(-1)[0];
-const dRows = dnames.map(d => ({ label: `D${d.split(" ")[1]}${DATA.managers[d] ? ` · ${last(DATA.managers[d])}` : ""}`, h: +((dist[d]?.m || 0) / 60).toFixed(1) }))
-  .sort((a, b) => b.h - a.h);
+const dRows = dnames.map(d => ({ label: `D${d.split(" ")[1]}${DATA.managers[d] ? ` · ${last(DATA.managers[d])}` : ""}`, h: +((dist[d]?.m || 0) / 60).toFixed(1),
+  a: ytdAvg(d) == null ? null : +(ytdAvg(d) / 60).toFixed(1) }))
+  .sort((a, b) => b.h - a.h || (b.a || 0) - (a.a || 0));
+const withAvg = dRows.some(r => r.a != null);
 const cRows = Object.entries(cat).map(([c, v]) => ({ label: c, h: +(v.m / 60).toFixed(1) })).sort((a, b) => b.h - a.h);
 
 const cy = 2.85, ch = 3.95;
@@ -78,8 +88,13 @@ const chartOpts = (title, x, w, n) => ({
   showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: '0.0"h"', dataLabelFontFace: FONT, dataLabelFontSize: 10, dataLabelColor: INK,
   showLegend: false,
 });
-s.addChart(pres.charts.BAR, [{ name: "Hours", labels: dRows.map(r => r.label), values: dRows.map(r => r.h) }],
-  { ...chartOpts("Down hours by district", 0.4, 4.25, dRows.length), objectName: "Chart: hours by district" });
+const dSeries = [{ name: "This week", labels: dRows.map(r => r.label), values: dRows.map(r => r.h) }];
+if (withAvg) dSeries.push({ name: "YTD avg / week", labels: dRows.map(r => r.label), values: dRows.map(r => r.a ?? 0) });
+s.addChart(pres.charts.BAR, dSeries, {
+  ...chartOpts(withAvg ? "District hours: week vs YTD avg" : "Down hours by district", 0.4, 4.25, dRows.length),
+  ...(withAvg ? { chartColors: [NAVY, GOLD], barGapWidthPct: 35, barGrouping: "clustered", dataLabelFontSize: 8, catAxisLabelFrequency: 1, catAxisLabelFontSize: 9,
+    showLegend: true, legendPos: "b", legendFontFace: FONT, legendFontSize: 10, legendColor: INK } : {}),
+  objectName: "Chart: hours by district" });
 s.addChart(pres.charts.BAR, [{ name: "Hours", labels: cRows.map(r => r.label), values: cRows.map(r => r.h) }],
   { ...chartOpts("Down hours by reason", 4.75, 4.0, cRows.length), objectName: "Chart: hours by reason" });
 

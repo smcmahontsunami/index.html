@@ -208,7 +208,7 @@ def build(ws, we, raw):
 
     events, used = [], set()
     for w in sorted(down_wos, key=lambda w: w["createdAt"]):
-        code = site_code(w.get("location", {}).get("name") or "") or site_from_text(w["title"], site_name)
+        code = site_code((w.get("location") or {}).get("name") or "") or site_from_text(w["title"], site_name)
         w_start, w_end = ts(w["createdAt"]), ts(w.get("completedAt"))
         # A WO logged after the fact carries the real start in startDate (ignore date-only 00:00).
         sd = ts(w.get("startDate"))
@@ -326,12 +326,24 @@ def pick_times(cands, wo_status):
 
 
 if __name__ == "__main__":
-    # build_week.py [last week start Sunday YYYY-MM-DD | ""] [number of weeks] [out.json]
+    # build_week.py [last week start Sunday YYYY-MM-DD | ""] [weeks of event detail] [out.json] [ytd]
+    # With "ytd", every week back to the one holding Jan 1 is built for the district history;
+    # only the last N weeks keep full event detail on the page.
     last_ws, _ = week_bounds(sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] else None)
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 6
-    starts = [last_ws - timedelta(days=7 * i) for i in reversed(range(n))]
+    ytd = len(sys.argv) > 4 and sys.argv[4] == "ytd"
+    first = last_ws - timedelta(days=7 * (n - 1))
+    if ytd:
+        jan1 = last_ws.replace(month=1, day=1)
+        first = min(first, jan1 - timedelta(days=(jan1.weekday() + 1) % 7))  # Sunday on/before Jan 1
+    starts = []
+    ws = first
+    while ws <= last_ws:
+        starts.append(ws)
+        ws = (ws + timedelta(days=7)).replace(tzinfo=CT)
     raw = fetch(starts[0])
-    weeks = [build(ws, ws + timedelta(days=7), raw) for ws in starts]
+    built = [build(ws, ws + timedelta(days=7), raw) for ws in starts]
+    weeks = built[-n:]
     sites_by_district = defaultdict(list)
     for code, d in raw["district_of"].items():
         sites_by_district[d].append(code)
@@ -339,6 +351,19 @@ if __name__ == "__main__":
            "managers": raw["manager_of"],
            "district_sites": {d: len(c) for d, c in sorted(sites_by_district.items())},
            "site_count": len(raw["site_name"]), "weeks": weeks}
+    if ytd:  # verified 7am-8pm minutes and event counts per district per week
+        year_start = last_ws.replace(month=1, day=1).date().isoformat()
+        hist = {"weeks": [w["week_start"] for w in built], "year_start": year_start, "minutes": {}, "events": {}}
+        for i, w in enumerate(built):
+            for e in w["events"]:
+                if e["start"][:10] < year_start:  # the first week can start in late December
+                    continue
+                d = e["district"]
+                hist["minutes"].setdefault(d, [0] * len(built))
+                hist["events"].setdefault(d, [0] * len(built))
+                hist["events"][d][i] += 1
+                hist["minutes"][d][i] += e["minutes"] or 0
+        out["history"] = hist
     path = sys.argv[3] if len(sys.argv) > 3 else f"downtime_{weeks[-1]['week_start']}.json"
     json.dump(out, open(path, "w"), indent=1, default=str)
     print(path, [len(w["events"]) for w in weeks], "events per week")

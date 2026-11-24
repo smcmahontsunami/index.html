@@ -86,6 +86,14 @@ a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2
 .pptx-link { font: 600 14px var(--body); color: var(--navy-ink); background: var(--gold); border-radius: 6px; padding: 9px 16px; text-decoration: none; }
 .slide-actions span { color: var(--muted); font-size: 13px; }
 .foot { color: var(--muted); font-size: 12px; margin-top: 30px; max-width: 90ch }
+.ytd-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px }
+.ytd-kpis .k { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; display: grid; gap: 2px }
+.ytd-kpis .k b { font: 700 24px/1.1 var(--display); font-variant-numeric: tabular-nums }
+.ytd-kpis .k span { font-size: 12px; color: var(--muted) }
+.ytd-kpis .k .lab { font: 600 11px/1.2 var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+.ytd-box { padding: 10px 6px }
+#ytd { display: block; font-family: var(--body) }
+@media (max-width: 760px) { .ytd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
 .mini { height: 8px; background: var(--line); border-radius: 2px; min-width: 60px }
 .mini > div { height: 100%; background: var(--gold); border-radius: 2px }
 @media (max-width: 760px) {
@@ -141,6 +149,14 @@ a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 2
     <h2>District and company totals</h2>
     <p class="sub">Districts from MaintainX teams; sites with no district team listed as Unassigned</p>
     <div class="tablebox"><table id="districts"></table></div>
+  </section>
+
+  <section id="ytd-sec" hidden>
+    <h2>District performance: week over week and year to date</h2>
+    <p class="sub" id="ytd-sub"></p>
+    <div class="ytd-kpis" id="ytd-kpis"></div>
+    <div class="tablebox ytd-box"><svg id="ytd" role="img" aria-label="District down hours by week, year to date"></svg></div>
+    <p class="foot" id="ytd-note" style="margin-top:10px"></p>
   </section>
 
   <section>
@@ -291,8 +307,73 @@ $("copy-slide").onclick = async () => {
     msg.textContent = "Copy isn't allowed here. Right-click the slide and choose Copy image.";
   }
 };
+function renderYtd() {
+  const H = DATA.history;
+  $("ytd-sec").hidden = !H;
+  if (!H) return;
+  const n = H.weeks.length, cur = DATA.weeks[state.week].week_start;
+  const ci = Math.max(0, H.weeks.indexOf(cur)), pi = ci - 1;
+  const names = Object.keys(DATA.managers).sort((x, y) => parseInt(x.split(" ")[1]) - parseInt(y.split(" ")[1]));
+  Object.keys(H.minutes).forEach(d => { if (!names.includes(d)) names.push(d); });
+  const mins = d => H.minutes[d] || Array(n).fill(0), evs = d => H.events[d] || Array(n).fill(0);
+  const upto = arr => arr.slice(0, ci + 1).reduce((s, v) => s + v, 0);
+  const rows = names.map(d => ({ d, m: mins(d), e: evs(d), ytd: upto(mins(d)), ev: upto(evs(d)), sites: DATA.district_sites[d] || 0 }))
+    .sort((a, b) => b.ytd - a.ytd);
+  const coM = Array(n).fill(0); rows.forEach(r => r.m.forEach((v, i) => coM[i] += v));
+  const coYtd = upto(coM), weeksIn = ci + 1;
+  const hrs = m => `${Math.round(m / 60)}h`;
+  const lbl = d => d === "Unassigned" ? d : `D${d.split(" ")[1]}${DATA.managers[d] ? " · " + DATA.managers[d].split(" ").slice(-1)[0] : ""}`;
+  const ps = r => r.sites ? r.ytd / 60 / r.sites : null;
+  const ranked = rows.filter(r => r.sites).sort((a, b) => ps(a) - ps(b));
+  const wow = rows.filter(r => pi >= 0).map(r => ({ r, dlt: r.m[ci] - r.m[pi] })).sort((a, b) => a.dlt - b.dlt);
+  const yd = ymd(H.year_start || H.weeks[0]);
+  $("ytd-sub").textContent = `Down hours between 7am and 8pm by district, every week since ${MON[yd.m - 1]} ${yd.d}, ${yd.y}. Rows sorted by year-to-date hours; the outlined column is the week selected above.`;
+  $("ytd-kpis").innerHTML = [
+    ["Company YTD", hrs(coYtd), `${weeksIn} weeks · ${(coYtd / 60 / weeksIn).toFixed(1)}h per week`],
+    ["Most YTD hours", lbl(rows[0].d), `${hrs(rows[0].ytd)} · ${ps(rows[0]) ? ps(rows[0]).toFixed(1) + "h per site" : ""}`],
+    ["Lowest per site", ranked.length ? lbl(ranked[0].d) : "—", ranked.length ? `${ps(ranked[0]).toFixed(1)}h per site YTD` : ""],
+    ["Biggest drop this week", wow.length && wow[0].dlt < 0 ? lbl(wow[0].r.d) : "—", wow.length && wow[0].dlt < 0 ? `▼ ${dur(-wow[0].dlt)} vs prior week` : "No district improved"],
+  ].map(([l, b, s]) => `<div class="k"><span class="lab">${l}</span><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join("");
+
+  const W = 1080, x0 = 132, rh = 26, y0 = 46, gap = 18;
+  const right = [{ k: "ytd", w: 150, t: "YTD hours" }, { k: "ps", w: 64, t: "Per site" }, { k: "tw", w: 74, t: "This week" }, { k: "lw", w: 74, t: "Prior week" }, { k: "ch", w: 84, t: "Change" }];
+  const rw = right.reduce((s, c) => s + c.w, 0), hw = W - x0 - gap - rw - 8, cw = hw / n;
+  const maxCell = Math.max(1, ...rows.flatMap(r => r.m)), maxY = Math.max(1, ...rows.map(r => r.ytd));
+  const heat = v => v ? `fill="var(--gold)" fill-opacity="${(0.14 + 0.86 * Math.sqrt(v / maxCell)).toFixed(3)}"` : `fill="var(--line)"`;
+  let g = "";
+  let lastM = -1;
+  H.weeks.forEach((w, i) => { const d = ymd(w); const m = d.d <= 7 || (i === 0 && d.d <= 24) ? d.m : lastM;
+    if (m !== lastM) { g += `<text x="${x0 + i * cw}" y="${y0 - 10}" font-size="11" fill="var(--muted)">${MON[d.m - 1]}</text>`; lastM = m; } });
+  let cx = x0 + hw + gap;
+  right.forEach(c => { g += `<text x="${c.k === "ytd" ? cx : cx + c.w - 6}" y="${y0 - 10}" font-size="11" font-weight="600" fill="var(--muted)" text-anchor="${c.k === "ytd" ? "start" : "end"}">${c.t}</text>`; c.x = cx; cx += c.w; });
+  const all = [...rows, { d: "Company", m: coM, e: [], ytd: coYtd, sites: DATA.site_count, company: true }];
+  all.forEach((r, ri) => {
+    const y = y0 + ri * rh + (r.company ? 8 : 0), mid = y + rh / 2 + 4;
+    if (r.company) g += `<line x1="0" x2="${W}" y1="${y - 4}" y2="${y - 4}" stroke="var(--line)"/>`;
+    g += `<text x="${x0 - 10}" y="${mid}" text-anchor="end" font-size="12.5" font-weight="${r.company ? 700 : 500}" fill="var(--ink)">${esc(r.company ? "Company" : lbl(r.d))}</text>`;
+    if (!r.company) r.m.forEach((v, i) => { const d = ymd(H.weeks[i]);
+      g += `<rect x="${(x0 + i * cw + 0.6).toFixed(1)}" y="${y + 3}" width="${(cw - 1.2).toFixed(1)}" height="${rh - 6}" rx="1.5" ${heat(v)}><title>${esc(lbl(r.d))} · week of ${MON[d.m - 1]} ${d.d}: ${dur(v)}, ${r.e[i]} event${r.e[i] === 1 ? "" : "s"}</title></rect>`; });
+    else { const mc = Math.max(1, ...coM); coM.forEach((v, i) => { const d = ymd(H.weeks[i]), bh = (rh - 6) * v / mc;
+      g += `<rect x="${(x0 + i * cw + 0.6).toFixed(1)}" y="${(y + rh - 3 - bh).toFixed(1)}" width="${(cw - 1.2).toFixed(1)}" height="${bh.toFixed(1)}" fill="${i === ci ? "var(--gold)" : "var(--bar)"}"><title>Company · week of ${MON[d.m - 1]} ${d.d}: ${dur(v)}</title></rect>`; }); }
+    const yc = right[0], bw = (yc.w - 50) * r.ytd / (r.company ? r.ytd || 1 : maxY);
+    g += `<rect x="${yc.x}" y="${y + 7}" width="${Math.max(r.ytd ? 2 : 0, bw).toFixed(1)}" height="${rh - 14}" rx="2" fill="${r.company ? "var(--gold)" : "var(--bar)"}"/><text x="${yc.x + bw + 6}" y="${mid}" font-size="12" fill="var(--ink)">${hrs(r.ytd)}</text>`;
+    const p = r.sites ? (r.ytd / 60 / r.sites).toFixed(1) + "h" : "—";
+    g += `<text x="${right[1].x + right[1].w - 6}" y="${mid}" text-anchor="end" font-size="12" fill="var(--ink)">${p}</text>`;
+    const tw = r.m[ci], lw = pi >= 0 ? r.m[pi] : null;
+    g += `<text x="${right[2].x + right[2].w - 6}" y="${mid}" text-anchor="end" font-size="12" font-weight="600" fill="var(--ink)">${dur(tw)}</text>`;
+    g += `<text x="${right[3].x + right[3].w - 6}" y="${mid}" text-anchor="end" font-size="12" fill="var(--muted)">${lw == null ? "—" : dur(lw)}</text>`;
+    if (lw != null) { const dl = tw - lw;
+      g += `<text x="${right[4].x + right[4].w - 6}" y="${mid}" text-anchor="end" font-size="12" font-weight="600" fill="${dl < 0 ? "var(--good)" : dl > 0 ? "var(--bad)" : "var(--muted)"}">${dl === 0 ? "no change" : (dl < 0 ? "▼ " : "▲ ") + dur(Math.abs(dl))}</text>`; }
+  });
+  const yb = y0 + all.length * rh + 8;
+  g += `<rect x="${(x0 + ci * cw).toFixed(1)}" y="${y0}" width="${cw.toFixed(1)}" height="${yb - y0 - 8}" fill="none" stroke="var(--ink)" stroke-width="1.5" rx="2"/>`;
+  const Ht = yb + 14;
+  $("ytd").setAttribute("viewBox", `0 0 ${W} ${Ht}`); $("ytd").setAttribute("width", W); $("ytd").setAttribute("height", Ht);
+  $("ytd").innerHTML = g;
+  $("ytd-note").textContent = "Each cell is one district-week; stronger gold means more down hours. Hover a cell for hours and events. Districts use today's site assignments for every week, and weeks before October have not been reviewed for corrections. Per site = YTD hours divided by the district's open sites.";
+}
 const _render = render;
-render = () => { _render(); renderSlide(); };
+render = () => { _render(); renderSlide(); renderYtd(); };
 
 $("week").innerHTML = DATA.weeks.map((w, i) => `<option value="${i}">${range(w)}</option>`).join("");
 $("week").value = String(state.week);

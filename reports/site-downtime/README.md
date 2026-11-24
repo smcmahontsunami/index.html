@@ -12,7 +12,7 @@ No MaintainX data is stored in this repository. Each run pulls fresh from the AP
 
 ```bash
 export MAINTAINX_API_KEY=...            # MaintainX REST API key
-python3 build_week.py "" 6 data.json   # "" = last completed week; 6 weeks of history
+python3 build_week.py "" 6 data.json ytd   # "" = last completed week; 6 weeks of event detail; "ytd" adds the district history since Jan 1
 # write insights.json for the latest week (format below)
 npm install pptxgenjs@3.12.0            # once
 node build_slide.js data.json insights.json Site_Downtime_<week>.pptx
